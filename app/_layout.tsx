@@ -11,7 +11,7 @@ export default function RootLayout() {
         name="(tabs)"
         options={{
           headerShown: true,
-          headerTitle: "하루 틈",
+          headerTitle: "하루 틈,",
           headerTitleAlign: "center",
           headerShadowVisible: false, // 👈 둔탁한 그림자(elevation/shadow)를 끄는 정석 옵션!
           headerStyle: {
