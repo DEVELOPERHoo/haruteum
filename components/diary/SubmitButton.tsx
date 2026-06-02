@@ -6,34 +6,72 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Alert, // 👈 에러 팝업을 위해 Alert 추가
 } from "react-native";
 import { useDiaryStore } from "../../store/diaryStore";
+import { diaryService } from "../../services/diaryService"; // 👈 방금 만든 서비스 레이어 임포트!
 import { useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function SubmitButton() {
   const router = useRouter();
-  const { content, selectedEmotionId, resetForm } = useDiaryStore();
 
-  // 🌟 AI가 하루를 분석하는 듯한 로딩 상태를 관리할 변수
+  // 🌟 스토어에서 content, selectedEmotionId와 함께 사진 배열(photos)도 가져옵니다!
+  /*
+  const {
+    content,
+    selectedEmotionId,
+    photos = [],
+    resetForm,
+  } = useDiaryStore();
+  */
+
+  const comment = "테스트 코멘트";
+  const files: string[] = [
+    "file:///data/user/0/com.loveapp/cache/ImagePicker/test_photo_1.jpg",
+    "file:///data/user/0/com.loveapp/cache/ImagePicker/test_photo_2.png",
+    "file:///data/user/0/com.loveapp/cache/ImagePicker/test_photo_3.jpeg",
+  ];
+
+  // AI가 하루를 분석하는 듯한 로딩 상태를 관리할 변수
   const [isGenerating, setIsGenerating] = useState(false);
 
-  const canSave = content.trim().length > 0 && selectedEmotionId !== null;
+  //const canSave = comment.trim().length > 0 && selectedEmotionId !== null;
+  const canSave = comment.trim().length > 0;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!canSave || isGenerating) return;
 
     // 1. 버튼을 즉시 로딩 상태로 변경
     setIsGenerating(true);
 
-    // 2. 1.5초(1500ms) 동안 로딩 감성을 보여준 뒤 자연스럽게 결과창으로 이동!
-    setTimeout(() => {
-      router.push("/diary-result");
+    try {
+      // 🌟 2. diaryService를 통해 백엔드 서버로 데이터 전송 (비동기 통신)
+      const result = await diaryService.createMemory({
+        comment,
+        //emotionId: selectedEmotionId,
+        files,
+      });
 
-      // 화면이 넘어간 뒤 부드럽게 폼 상태 리셋
-      setIsGenerating(false);
-      resetForm();
-    }, 1500);
+      console.log("백엔드 전송 성공 피드백:", result);
+
+      // 🌟 3. 통신이 성공하면 1.2초 뒤 결과창으로 이동하고 폼 리셋하기
+      setTimeout(() => {
+        router.push("/diary-result");
+        setIsGenerating(false);
+        //resetForm(); 스토어 내부용 청소함수
+      }, 1200);
+    } catch (error) {
+      console.error("백엔드 통신 실패 에러:", error);
+      setIsGenerating(false); // 로딩 상태 해제해서 버튼 다시 활성화
+
+      // 유저에게 친절하게 에러 알림 띄우기
+      Alert.alert(
+        "기록 저장 실패 😢",
+        "서버와 연결이 원활하지 않습니다. 네트워크 상태나 IP 주소를 다시 확인해 주세요.",
+        [{ text: "확인" }],
+      );
+    }
   };
 
   return (

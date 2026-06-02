@@ -1,5 +1,5 @@
 // app/diary-result.tsx
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -20,7 +20,9 @@ import {
   BookmarkPlus,
 } from "lucide-react-native";
 
+// 🌟 화면 너비를 가져와서 카드의 정확한 가로폭을 계산합니다.
 const { width } = Dimensions.get("window");
+const CARD_WIDTH = width - 40; // 양쪽 패딩 20씩 제외
 
 interface DiaryResultProps {
   mode?: "solo" | "together";
@@ -36,18 +38,24 @@ interface DiaryResultProps {
 }
 
 export default function DiaryResultScreen({
-  mode = "solo",
+  mode = "solo", // 테스트를 위해 solo로 설정 (공유하기 버튼 보이게)
   year = 2026,
   month = 5,
   day = 29,
   weekday = "금",
-  photos = [],
+  // 🌟 테스트용 사진 3장 샘플 (나중에 실제 데이터로 연동해!)
+  photos = [
+    "https://picsum.photos/800/1000?random=1",
+    "https://picsum.photos/800/1000?random=2",
+    "https://picsum.photos/800/1000?random=3",
+  ],
   happinessScore = 85,
   mood = "🥰",
   moodData = { label: "사랑해", summary: "다정함으로 가득 찬" },
   setShowSummary,
 }: DiaryResultProps) {
   const router = useRouter();
+  const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   const summaryText =
     mode === "solo"
@@ -58,6 +66,13 @@ export default function DiaryResultScreen({
     mode === "solo"
       ? "오늘 하루도 잘 버텼어요, 내일도 화이팅"
       : "오늘도 함께여서 행복했어요";
+
+  // 가로 스크롤 시 인덱스를 계산하는 함수
+  const handlePhotoScroll = (event: any) => {
+    const xOffset = event.nativeEvent.contentOffset.x;
+    const index = Math.round(xOffset / CARD_WIDTH);
+    setActivePhotoIndex(index);
+  };
 
   return (
     <View style={styles.mainContainer}>
@@ -74,32 +89,65 @@ export default function DiaryResultScreen({
           }
           style={styles.backButton}
         >
-          <Text style={styles.backButtonFlex}>
+          <View style={styles.buttonContentRow}>
             <ArrowLeft size={16} color="rgba(136, 136, 136, 0.6)" />
             <Text style={styles.backButtonText}> 돌아가기</Text>
-          </Text>
+          </View>
         </TouchableOpacity>
 
-        {/* 일체형 카드 */}
+        {/* 🤍 일체형 매거진 카드 */}
         <View style={styles.mainCard}>
+          {/* 📸 가로 슬라이드 사진 영역 */}
+          {photos && photos.length > 0 && (
+            <View style={styles.imageSliderWrapper}>
+              <ScrollView
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                onScroll={handlePhotoScroll}
+                scrollEventThrottle={16}
+                // 안드로이드에서 스크롤 충돌을 방지하기 위한 핵심 속성
+                nestedScrollEnabled={true}
+              >
+                {photos.map((uri, index) => (
+                  <View
+                    key={index}
+                    style={{ width: CARD_WIDTH, aspectRatio: 4 / 3 }}
+                  >
+                    <Image
+                      source={{ uri }}
+                      style={styles.diaryImage}
+                      resizeMode="cover"
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+
+              {/* 장수 표시 인디케이터 (예: 1/3) */}
+              <View style={styles.photoCountBadge}>
+                <Text style={styles.photoCountText}>
+                  {activePhotoIndex + 1} / {photos.length}
+                </Text>
+              </View>
+
+              <Text style={styles.imageTagText}>
+                {mode === "solo" ? "MY MEMORY" : "OUR STORY"}
+              </Text>
+            </View>
+          )}
+
           {/* 날짜 헤더 */}
-          <View style={styles.cardHeader}>
+          <View
+            style={[
+              styles.cardHeader,
+              photos.length === 0 && { paddingTop: 28 },
+            ]}
+          >
             <Text style={styles.dateText}>
               {year}.{String(month).padStart(2, "0")}.
               {String(day).padStart(2, "0")} {weekday}요일
             </Text>
           </View>
-
-          {/* 사진 영역 */}
-          {photos && photos.length > 0 && (
-            <View style={styles.imageWrapper}>
-              <Image
-                source={{ uri: photos[0] }}
-                style={styles.diaryImage}
-                resizeMode="cover"
-              />
-            </View>
-          )}
 
           {/* AI 요약 메시지 */}
           <View style={styles.summaryWrapper}>
@@ -143,10 +191,10 @@ export default function DiaryResultScreen({
           {/* 오늘의 한마디 */}
           <View style={styles.quoteWrapper}>
             <View style={styles.quoteHeader}>
-              <Text style={styles.quoteHeaderFlex}>
+              <View style={styles.buttonContentRow}>
                 <Sparkles size={14} color="#D4A59A" />
-                <Text style={styles.quoteLabel}> 오늘의 한마디</Text>
-              </Text>
+                <Text style={styles.quoteLabel}>오늘의 한마디</Text>
+              </View>
             </View>
             <Text style={styles.quoteText}>
               "{todayQuote}" {mode === "solo" ? "💪" : "💕"}
@@ -154,10 +202,9 @@ export default function DiaryResultScreen({
           </View>
         </View>
 
-        {/* 🌟 자연스럽게 스크롤 하단에 이어지는 버튼 영역 */}
+        {/* 🔘 하단 버튼 영역 */}
         <View style={styles.bottomArea}>
           <View style={styles.buttonRow}>
-            {/* 1. 이미지 저장 버튼 */}
             <TouchableOpacity activeOpacity={0.8} style={styles.subButton}>
               <View style={styles.buttonContentRow}>
                 <Download size={15} color="#3E2723" />
@@ -165,7 +212,6 @@ export default function DiaryResultScreen({
               </View>
             </TouchableOpacity>
 
-            {/* 2. 공유하기 버튼 (아이콘 교체 및 수평 정렬 완벽 보정!) */}
             <TouchableOpacity activeOpacity={0.8} style={styles.subButton}>
               <View style={styles.buttonContentRow}>
                 <ExternalLink size={15} color="#3E2723" />
@@ -174,7 +220,7 @@ export default function DiaryResultScreen({
             </TouchableOpacity>
           </View>
 
-          {/* 3. 기록 저장하기 버튼 */}
+          {/* 기록 저장하기 버튼 */}
           <TouchableOpacity activeOpacity={0.8} style={styles.mainButton}>
             <View style={styles.buttonContentRow}>
               <BookmarkPlus size={16} color="#FFFFFF" />
@@ -183,12 +229,12 @@ export default function DiaryResultScreen({
                 name="heart"
                 size={12}
                 color="#FFFFFF"
-                style={{ marginLeft: 2 }}
+                style={{ marginLeft: 4 }}
               />
             </View>
           </TouchableOpacity>
 
-          {/* 4. 함께로 공유하기 버튼 */}
+          {/* 💖 [중요] 함께로 공유하기 버튼 (solo 모드일 때만) */}
           {mode === "solo" && (
             <TouchableOpacity
               activeOpacity={0.8}
@@ -209,15 +255,15 @@ export default function DiaryResultScreen({
 const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: "#FAF7F5" },
   scrollContainer: { flex: 1 },
-  // 하단 고정 여백을 줄이고, 자연스러운 끝여백(40)만 주었습니다.
   scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 },
+
   backButton: { marginBottom: 16, alignSelf: "flex-start", paddingVertical: 4 },
-  backButtonFlex: { flexDirection: "row", alignItems: "center" },
   backButtonText: {
     fontSize: 14,
     color: "rgba(136, 136, 136, 0.6)",
     letterSpacing: -0.3,
   },
+
   mainCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 28,
@@ -227,8 +273,36 @@ const styles = StyleSheet.create({
     shadowRadius: 24,
     elevation: 4,
     overflow: "hidden",
-    marginBottom: 20, // 👈 카드와 아래 버튼 영역 간격을 넉넉히 벌림
+    marginBottom: 20,
   },
+
+  // 사진 슬라이더 관련 스타일
+  imageSliderWrapper: {
+    width: "100%",
+    aspectRatio: 4 / 3,
+    position: "relative",
+  },
+  diaryImage: { width: "100%", height: "100%" },
+  photoCountBadge: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+  },
+  photoCountText: { color: "#FFFFFF", fontSize: 10, fontWeight: "600" },
+  imageTagText: {
+    position: "absolute",
+    bottom: 12,
+    right: 16,
+    fontSize: 10,
+    color: "#FFFFFF",
+    letterSpacing: 2,
+    fontWeight: "600",
+  },
+
   cardHeader: { paddingTop: 24, paddingBottom: 16, alignItems: "center" },
   dateText: {
     fontSize: 18,
@@ -236,8 +310,7 @@ const styles = StyleSheet.create({
     color: "#3E2723",
     letterSpacing: -0.3,
   },
-  imageWrapper: { paddingHorizontal: 20, paddingBottom: 20 },
-  diaryImage: { width: "100%", aspectRatio: 4 / 5, borderRadius: 20 },
+
   summaryWrapper: {
     paddingHorizontal: 24,
     paddingBottom: 20,
@@ -249,12 +322,14 @@ const styles = StyleSheet.create({
     color: "#4E342E",
     textAlign: "center",
   },
+
   divider: { height: 1, backgroundColor: "#F4EDE9", marginHorizontal: 24 },
   rowJustify: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
+
   sectionPadding: { paddingHorizontal: 24, paddingVertical: 18 },
   sectionLabel: {
     fontSize: 13,
@@ -262,6 +337,7 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   scoreText: { fontSize: 18, fontWeight: "700", color: "#D4A59A" },
+
   progressBarTrack: {
     height: 10,
     backgroundColor: "#F5ECE9",
@@ -274,16 +350,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#D4A59A",
     borderRadius: 10,
   },
+
   moodBadge: { flexDirection: "row", alignItems: "center", gap: 6 },
   moodEmoji: { fontSize: 22 },
   moodLabel: { fontSize: 15, color: "#3E2723", fontWeight: "500" },
+
   quoteWrapper: {
     paddingHorizontal: 24,
     paddingVertical: 24,
     alignItems: "center",
   },
   quoteHeader: { marginBottom: 10 },
-  quoteHeaderFlex: { flexDirection: "row", alignItems: "center" },
   quoteLabel: {
     fontSize: 11,
     color: "rgba(136, 136, 136, 0.6)",
@@ -296,15 +373,13 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // 🌟 자연스럽게 흐르는 형태로 바뀐 하단 버튼 영역 스타일링
   bottomArea: {
     width: "100%",
     marginTop: 8,
-    // 기기별 하단 내비게이션 바 근처 여백 보정
     paddingBottom: Platform.OS === "ios" ? 12 : 4,
   },
   buttonRow: { flexDirection: "row", gap: 12, marginBottom: 12 },
-  centerIconRow: { textAlign: "center", color: "#3E2723" },
+
   subButton: {
     flex: 1,
     height: 48,
@@ -314,14 +389,9 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    // 버튼들이 흐르는 레이아웃에 어울리도록 가벼운 섀도우 추가
-    shadowColor: "#3E2723",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.02,
-    shadowRadius: 4,
-    elevation: 1,
   },
   subButtonText: { fontSize: 14, color: "#3E2723", fontWeight: "500" },
+
   mainButton: {
     width: "100%",
     height: 54,
@@ -329,11 +399,6 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     justifyContent: "center",
     alignItems: "center",
-    shadowColor: "#D4A59A",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 3,
     marginBottom: 8,
   },
   mainButtonText: {
@@ -342,6 +407,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     letterSpacing: 0.3,
   },
+
   soloShareButton: {
     width: "100%",
     height: 48,
@@ -351,11 +417,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 4,
   },
+  soloShareButtonText: { fontSize: 14, color: "#D4A59A", fontWeight: "600" },
+
   buttonContentRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6, // 🌟 아이콘과 텍스트 사이의 황금 간격!
+    gap: 6,
   },
-  soloShareButtonText: { fontSize: 14, color: "#D4A59A", fontWeight: "600" },
 });
