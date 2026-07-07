@@ -1,10 +1,13 @@
 // utils/dateFormat.ts
-export const getFormattedDate = (): string => {
-  const now = new Date();
 
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+/**
+ * 특정 Date 객체를 받아 "년.월.일 요요일" 포맷 문자열로 반환하는 함수
+ * @param date 지정을 원하는 Date 객체 (생략 시 자동으로 '오늘' 날짜 사용)
+ */
+export const getFormattedDate = (date: Date = new Date()): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
 
   const weekDays = [
     "일요일",
@@ -15,7 +18,7 @@ export const getFormattedDate = (): string => {
     "금요일",
     "토요일",
   ];
-  const weekDay = weekDays[now.getDay()];
+  const weekDay = weekDays[date.getDay()];
 
   return `${year}.${month}.${day} ${weekDay}`;
 };

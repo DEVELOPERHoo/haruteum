@@ -1,46 +1,61 @@
 // services/diaryService.ts
+import { Platform } from "react-native";
 
 interface CreateMemoryParams {
   comment: string;
-  //emotionId: number;
+  emotionId: string;
   files: string[];
+  mode: string;
 }
 
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+
 export const diaryService = {
-  /**
-   * 백엔드 서버로 다이어리 글과 사진들을 전송하는 함수
-   */
-  createMemory: async ({ comment, files }: CreateMemoryParams) => {
+  createMemory: async ({
+    comment,
+    emotionId,
+    files,
+    mode,
+  }: CreateMemoryParams) => {
     const formData = new FormData();
 
     // 1. 텍스트 데이터 패킹
     formData.append("comment", comment);
-    //formData.append("emotionId", String(emotionId));
+    formData.append("emotion", emotionId);
 
     // 2. 다중 사진 데이터 패킹
     if (files && files.length > 0) {
       files.forEach((photoUri: string, index: number) => {
-        // 🌟 확장자를 추출한 뒤 안전하게 소문자로 변경 (JPG -> jpg 예방)
-        const rawType = photoUri.split(".").pop() || "jpg";
+        // 주소 뒤에 혹시 붙어있을지 모를 쿼리 파라미터(?...) 제거
+        const cleanUri = photoUri.split("?")[0];
+
+        // 🌟 주소 끝에 .jpg가 없어도 에러 안 나게 디폴트 확장자 처리 보완
+        const hasExtension = cleanUri.includes(".");
+        const rawType = hasExtension
+          ? cleanUri.split(".").pop() || "jpg"
+          : "jpg";
         const fileType = rawType.toLowerCase();
 
-        // 🌟 mime type 매핑을 조금 더 촘촘하게 보완
+        // mime type 매핑 진행
         let mimeType = `image/${fileType}`;
         if (fileType === "jpg" || fileType === "jpeg") {
           mimeType = "image/jpeg";
         }
 
         formData.append("files", {
-          // 👈 백엔드 키값 일치 여부 꼭 확인!
-          uri: photoUri,
+          // iOS와 안드로이드 모두 파일 경로를 안정적으로 읽을 수 있도록 처리
+          uri:
+            Platform.OS === "ios" ? photoUri.replace("file://", "") : photoUri,
           name: `diary_photo_${index}_${Date.now()}.${fileType}`,
           type: mimeType,
         } as any);
       });
     }
 
-    // 3. POST 통신 실행
-    const response = await fetch("http://172.17.22.116:3000/memory/create", {
+    formData.append("mode", mode);
+
+    // 3. POST 통신 실행 (문법 오류 및 중복 괄호 완전 청소 ✨)
+    const response = await fetch(`${BASE_URL}/api/v1/memory/create`, {
       method: "POST",
       body: formData,
       headers: {
@@ -48,11 +63,15 @@ export const diaryService = {
       },
     });
 
+    // 4. 백엔드가 준 가공 전 날것의 응답 텍스트 출력해보기
+    const responseText = await response.text();
+    console.log("🔥 백엔드 실시간 Response Text:", responseText);
+
     if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(errorText || "서버 응답 오류 발생");
+      throw new Error(responseText || "서버 응답 오류 발생");
     }
 
-    return await response.json();
+    // JSON으로 가공해서 리턴
+    return JSON.parse(responseText);
   },
 };

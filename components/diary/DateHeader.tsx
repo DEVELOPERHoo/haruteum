@@ -6,10 +6,7 @@ import { getFormattedDate } from "../../utils/dateFormat";
 export default function DateHeader() {
   return (
     <View style={styles.container}>
-      {/* 날짜 표시 영역 (더 얇고 은은하게 수채화처럼) */}
       <Text style={styles.dateText}>{getFormattedDate()}</Text>
-
-      {/* 감성적인 문구 (마치 연인이 조용히 물어보는 느낌으로) */}
       <Text style={styles.subText}>오늘은 어떤하루 였나요?</Text>
     </View>
   );

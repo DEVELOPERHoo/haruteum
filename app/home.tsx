@@ -9,23 +9,24 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { useDiaryStore } from "../store/diaryStore";
 
 const { width } = Dimensions.get("window");
 
 export default function HomeScreen() {
   const router = useRouter();
 
+  const { setMode } = useDiaryStore();
+
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
   const day = now.getDate();
 
-  const handleModeSelect = (mode: "solo" | "together") => {
-    if (mode === "solo") {
-      router.push("/diary");
-    } else {
-      router.push("/diary");
-    }
+  const handleModeSelect = (selectedMode: "solo" | "together") => {
+    setMode(selectedMode);
+
+    router.push("/diary");
   };
 
   return (

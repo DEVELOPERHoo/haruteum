@@ -6,71 +6,74 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
-  Alert, // 👈 에러 팝업을 위해 Alert 추가
+  Alert,
 } from "react-native";
 import { useDiaryStore } from "../../store/diaryStore";
-import { diaryService } from "../../services/diaryService"; // 👈 방금 만든 서비스 레이어 임포트!
+import { diaryService } from "../../services/diaryService";
 import { useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function SubmitButton() {
   const router = useRouter();
 
-  // 🌟 스토어에서 content, selectedEmotionId와 함께 사진 배열(photos)도 가져옵니다!
-  /*
-  const {
-    content,
-    selectedEmotionId,
-    photos = [],
-    resetForm,
-  } = useDiaryStore();
-  */
+  // 🌟 1. 주석을 풀고 스토어에서 유저가 입력한 진짜 상태들을 가져옵니다!
+  const { content, selectedEmotionId, photoUri, mode } = useDiaryStore();
 
-  const comment = "테스트 코멘트";
-  const files: string[] = [
-    "file:///data/user/0/com.loveapp/cache/ImagePicker/test_photo_1.jpg",
-    "file:///data/user/0/com.loveapp/cache/ImagePicker/test_photo_2.png",
-    "file:///data/user/0/com.loveapp/cache/ImagePicker/test_photo_3.jpeg",
-  ];
-
-  // AI가 하루를 분석하는 듯한 로딩 상태를 관리할 변수
   const [isGenerating, setIsGenerating] = useState(false);
 
-  //const canSave = comment.trim().length > 0 && selectedEmotionId !== null;
-  const canSave = comment.trim().length > 0;
+  // 저장 가능한 조건 (글이 있고, 감정이 선택되어 있고, 사진까지 꽂혀있을 때)
+  const canSave =
+    content?.trim().length > 0 &&
+    selectedEmotionId !== null &&
+    photoUri !== null;
 
   const handleSubmit = async () => {
     if (!canSave || isGenerating) return;
 
-    // 1. 버튼을 즉시 로딩 상태로 변경
     setIsGenerating(true);
 
     try {
-      // 🌟 2. diaryService를 통해 백엔드 서버로 데이터 전송 (비동기 통신)
+      // 🌟 2. 단일 string 주소인 photoUri를 백엔드가 원하는 배열 형태([photoUri])로 패킹해서 보냅니다!
+      const files = photoUri ? [photoUri] : [];
+
+      // 백엔드가 명세서에 열어둔 필드명(comment, emotionId)에 맞춰 데이터 토스!
       const result = await diaryService.createMemory({
-        comment,
-        //emotionId: selectedEmotionId,
-        files,
+        comment: content,
+        emotionId: String(selectedEmotionId), // string으로 변환해서 전달
+        files: files,
+        mode: mode,
       });
 
-      console.log("백엔드 전송 성공 피드백:", result);
+      console.log("🚀 백엔드 응답 수신 완료:", result);
 
-      // 🌟 3. 통신이 성공하면 1.2초 뒤 결과창으로 이동하고 폼 리셋하기
-      setTimeout(() => {
-        router.push("/diary-result");
-        setIsGenerating(false);
-        //resetForm(); 스토어 내부용 청소함수
-      }, 1200);
-    } catch (error) {
-      console.error("백엔드 통신 실패 에러:", error);
-      setIsGenerating(false); // 로딩 상태 해제해서 버튼 다시 활성화
+      // 🌟 [핵심 추가] 통신은 성공했으나 응답 본문이 빈 값(null, undefined, 또는 빈 객체)인지 검사
+      // 백엔드가 필수적으로 줘야 하는 'summary' 같은 키값이 없거나 객체가 비어있다면 가로막습니다.
+      if (!result || Object.keys(result).length === 0 || !result.summary) {
+        throw new Error("SERVER_EMPTY_DATA"); // 에러를 강제로 발생시켜 catch문으로 토스!
+      }
 
-      // 유저에게 친절하게 에러 알림 띄우기
-      Alert.alert(
-        "기록 저장 실패 😢",
-        "서버와 연결이 원활하지 않습니다. 네트워크 상태나 IP 주소를 다시 확인해 주세요.",
-        [{ text: "확인" }],
-      );
+      // 2. 데이터 유효성 검사까지 통과했으므로 안심하고 스토어 주입 및 화면 이동!
+      useDiaryStore.getState().setResultData(result);
+      router.push("/diary-result");
+    } catch (error: any) {
+      console.error("백엔드 통신 또는 데이터 오류:", error);
+
+      // 🌟 에러 원인에 따라 유저 팝업 문구 분기 처리
+      if (error.message === "SERVER_EMPTY_DATA") {
+        Alert.alert(
+          "분석 오류 😢",
+          "서버에서 분석 데이터를 안정적으로 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+          [{ text: "확인" }],
+        );
+      } else {
+        Alert.alert(
+          "기록 저장 실패 😢",
+          "서버와 연결이 원활하지 않습니다. 네트워크 상태를 확인해 주세요.",
+          [{ text: "확인" }],
+        );
+      }
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -87,7 +90,6 @@ export default function SubmitButton() {
     >
       {isGenerating ? (
         <View style={styles.rowGap}>
-          {/* 반짝이는 감성을 위해 돌아가는 미니멀 로딩 스피너 */}
           <ActivityIndicator size="small" color="#FFFFFF" />
           <Text style={styles.buttonText}>하루를 정리하는 중...</Text>
         </View>
@@ -109,6 +111,7 @@ export default function SubmitButton() {
   );
 }
 
+// 스타일시트는 기존 코드 그대로 유지
 const styles = StyleSheet.create({
   button: {
     width: "100%",
@@ -118,7 +121,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     marginTop: 24,
-    marginBottom: 40,
     shadowColor: "#D4A59A",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.25,
@@ -132,7 +134,7 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   generatingButton: {
-    backgroundColor: "rgba(212, 165, 154, 0.7)", // 조금 더 차분하게 내려앉는 로딩 톤 연출
+    backgroundColor: "rgba(212, 165, 154, 0.7)",
     shadowOpacity: 0.1,
   },
   rowGap: {
@@ -147,7 +149,5 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     letterSpacing: 1.2,
   },
-  disabledButtonText: {
-    color: "rgba(255, 255, 255, 0.7)",
-  },
+  disabledButtonText: { color: "rgba(255, 255, 255, 0.7)" },
 });
