@@ -70,7 +70,7 @@ function EmojiButton({ item, isSelected, onPress }) {
 }
 
 export default function EmojiPicker() {
-  const { selectedEmotionId, setSelectedEmotionId } = useDiaryStore();
+  const { selectedEmotionId, setSelectedEmotionId, mode } = useDiaryStore();
 
   const handlePress = (id: string) => {
     setSelectedEmotionId(selectedEmotionId === id ? null : id);
@@ -78,7 +78,9 @@ export default function EmojiPicker() {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.sectionTitle}>오늘의 우리는</Text>
+      <Text style={styles.sectionTitle}>
+        {mode === "solo" ? "오늘의 나는" : "오늘의 우리는"}
+      </Text>
 
       <View style={styles.container}>
         {EMOTION_LIST.map((item) => (

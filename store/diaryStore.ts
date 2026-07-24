@@ -20,10 +20,10 @@ interface DiaryStore {
   // 사용자가 입력하던 기존 state들 (기존 코드 유지)
   content: string;
   selectedEmotionId: string | null;
-  photoUri: string | null;
+  photoUris: string[];
   setContent: (content: string) => void;
   setSelectedEmotionId: (emotionId: string | null) => void;
-  setPhotoUri: (uri: string | null) => void;
+  setPhotoUris: (uris: string[]) => void; // 🌟 배열 저장 액션
 
   // 🌟 [추가] 백엔드에서 받아온 결과 데이터를 담을 state
   resultData: DiaryResultData | null;
@@ -37,24 +37,23 @@ interface DiaryStore {
 export const useDiaryStore = create<DiaryStore>((set) => ({
   mode: "solo",
   setMode: (mode) => set({ mode }),
-  // 기존 초기값들
   content: "",
   selectedEmotionId: null,
-  photoUri: null,
+
+  // 초기값도 빈 배열로 세팅!
+  photoUris: [],
   setContent: (content) => set({ content }),
   setSelectedEmotionId: (selectedEmotionId) => set({ selectedEmotionId }),
-  setPhotoUri: (photoUri) => set({ photoUri }),
+  setPhotoUris: (photoUris) => set({ photoUris }),
 
-  // 🌟 [추가] 결과 데이터 초기값 및 액션
   resultData: null,
   setResultData: (resultData) => set({ resultData }),
 
-  // 🌟 리셋할 때 결과 데이터까지 말끔하게 비워주기
   resetForm: () =>
     set({
       content: "",
       selectedEmotionId: null,
-      photoUri: null,
-      resultData: null, // ✨ 청소!
+      photoUris: [], // ✨ 깔끔하게 청소!
+      resultData: null,
     }),
 }));

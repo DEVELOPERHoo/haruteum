@@ -38,7 +38,7 @@ haruteum/
 ├── app/
 │ ├── \_layout.tsx ← 루트 레이아웃
 │ ├── index.tsx ← 스플래시 (로그인 체크)
-│ ├── login.tsx ← 로그인/회원가입
+│ ├── login.tsx ← 로그인/회원가입 로그인토큰 -> secureStore 저장(기기내부 저장소)
 │ ├── home.tsx ← 모드 선택 화면 (나혼자/함께)
 │ ├── diary-result.tsx ← AI 결과 화면 (공통)
 │ │

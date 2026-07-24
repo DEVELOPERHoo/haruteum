@@ -1,21 +1,41 @@
-// components/diary/TextInput.tsx
-import React from "react";
+import React, { useRef } from "react";
 import { StyleSheet, TextInput as RNTextInput, View, Text } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useDiaryStore } from "../../store/diaryStore";
 
-export default function TextInput() {
-  const { content, setContent } = useDiaryStore();
+interface Props {
+  scrollRef: React.RefObject<KeyboardAwareScrollView>;
+}
+
+export default function TextInput({ scrollRef }: Props) {
+  const { content, setContent, mode } = useDiaryStore();
+  const inputRef = useRef<RNTextInput>(null);
+
+  const handleFocus = () => {
+    if (inputRef.current) {
+      scrollRef.current?.scrollToFocusedInput(
+        inputRef.current as any,
+        110, // ← 키보드 위 여유 공간
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
       <RNTextInput
+        ref={inputRef}
         style={styles.input}
-        placeholder="오늘 너와 함께한 순간..."
+        placeholder={
+          mode === "solo"
+            ? "오늘의 나는 어떤 하루를 보냈나요..."
+            : "오늘 너와 함께한 순간..."
+        }
         placeholderTextColor="#BBB"
         multiline
         maxLength={150}
         value={content}
         onChangeText={setContent}
+        onFocus={handleFocus} // ← 포커스 시 정확한 위치로 스크롤
       />
       <View style={styles.footerRow}>
         <Text style={styles.tipText}>짧아도 괜찮아</Text>

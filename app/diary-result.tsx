@@ -23,6 +23,7 @@ import {
 import { getFormattedDate } from "../utils/dateFormat";
 import { useDiaryStore } from "../store/diaryStore";
 import { EMOTION_LIST } from "../constants/emotions"; // 👈 내장 감정 리스트 상수가 있는 경로로 맞춰줘!
+import * as SecureStore from "expo-secure-store";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -73,6 +74,24 @@ export default function DiaryResultScreen() {
   const handleExit = () => {
     resetForm();
     router.back();
+  };
+
+  const handleSaveAction = async () => {
+    const accessToken = await SecureStore.getItemAsync("accessToken");
+    console.log("엑세스 토큰은 : ", accessToken);
+    if (!accessToken) {
+      // 로그인 안 됐으면 로그인 화면으로
+      router.push("/login");
+      return;
+    }
+
+    try {
+      // apiRequest 안에서 토큰 갱신까지 자동 처리
+      //await saveDiary(diaryData);
+    } catch (error) {
+      // 갱신 실패 시 로그인으로
+      router.push("/login");
+    }
   };
 
   return (
@@ -195,49 +214,38 @@ export default function DiaryResultScreen() {
 
         {/* 🔘 하단 버튼 영역 */}
         <View style={styles.bottomArea}>
-          <View style={styles.buttonRow}>
-            <TouchableOpacity activeOpacity={0.8} style={styles.subButton}>
-              <View style={styles.buttonContentRow}>
-                <Download size={15} color="#3E2723" />
-                <Text style={styles.subButtonText}>이미지 저장</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity activeOpacity={0.8} style={styles.subButton}>
-              <View style={styles.buttonContentRow}>
-                <ExternalLink size={15} color="#3E2723" />
-                <Text style={styles.subButtonText}>공유하기</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-
-          {/* 기록 저장하기 버튼 */}
           <TouchableOpacity
             activeOpacity={0.8}
-            style={styles.mainButton}
-            onPress={handleExit}
+            style={styles.actionMainButton}
+            onPress={handleSaveAction}
           >
             <View style={styles.buttonContentRow}>
-              <BookmarkPlus size={16} color="#FFFFFF" />
-              <Text style={styles.mainButtonText}>나만의 히스토리 저장 </Text>
-              <AntDesign
-                name="heart"
-                size={12}
-                color="#FFFFFF"
-                style={{ marginLeft: 4 }}
-              />
+              <Download size={16} color="#FFFFFF" />
+              <Text style={styles.actionMainButtonText}>
+                이 순간을 저장하기
+              </Text>
             </View>
           </TouchableOpacity>
 
-          {/* 함께로 공유하기 버튼 */}
+          {/* 2. 링크 공유하기 (깔끔하고 정갈한 화이트 풀 바) */}
+          <TouchableOpacity activeOpacity={0.8} style={styles.actionSubButton}>
+            <View style={styles.buttonContentRow}>
+              <ExternalLink size={16} color="#3E2723" />
+              <Text style={styles.actionSubButtonText}>친구에게 공유하기</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* 3. 함께로 공유하기 (솔로 모드일 때만 수줍게 등장하는 연한 핑크 톤 풀 바) */}
           {mode === "solo" && (
             <TouchableOpacity
               activeOpacity={0.8}
-              style={styles.soloShareButton}
+              style={styles.actionShareButton}
             >
               <View style={styles.buttonContentRow}>
                 <AntDesign name="heart" size={14} color="#D4A59A" />
-                <Text style={styles.soloShareButtonText}>함께로 공유하기</Text>
+                <Text style={styles.actionShareButtonText}>
+                  연인과 함께 다이어리로 공유하기
+                </Text>
               </View>
             </TouchableOpacity>
           )}
@@ -365,52 +373,74 @@ const styles = StyleSheet.create({
     textAlign: "center",
     letterSpacing: -0.3,
   },
+  // 🔘 하단 버튼 영역 전체 컨테이너
   bottomArea: {
     width: "100%",
-    marginTop: 8,
-    paddingBottom: Platform.OS === "ios" ? 12 : 4,
+    marginTop: 12,
+    paddingBottom: Platform.OS === "ios" ? 24 : 12,
+    gap: 10, // 버튼들 사이의 간격을 정갈하게 고정
   },
-  buttonRow: { flexDirection: "row", gap: 12, marginBottom: 12 },
-  subButton: {
-    flex: 1,
-    height: 48,
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#EEDFDC",
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  subButtonText: { fontSize: 14, color: "#3E2723", fontWeight: "500" },
-  mainButton: {
+
+  // 1. 메인 이미지 저장 버튼 (꽉 찬 로즈 베이지 톤으로 시선 집중)
+  actionMainButton: {
     width: "100%",
     height: 54,
     backgroundColor: "#D4A59A",
-    borderRadius: 16,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: 8,
+    shadowColor: "#D4A59A",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
   },
-  mainButtonText: {
+  actionMainButtonText: {
     fontSize: 15,
     color: "#FFFFFF",
     fontWeight: "600",
-    letterSpacing: 0.3,
+    letterSpacing: -0.3,
   },
-  soloShareButton: {
+
+  // 2. 서브 링크 공유 버튼 (매거진 감성의 깔끔한 밀크 화이트 바)
+  actionSubButton: {
     width: "100%",
-    height: 48,
-    backgroundColor: "rgba(212, 165, 154, 0.12)",
-    borderRadius: 16,
+    height: 54,
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#EEDFDC",
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 4,
   },
-  soloShareButtonText: { fontSize: 14, color: "#D4A59A", fontWeight: "600" },
+  actionSubButtonText: {
+    fontSize: 15,
+    color: "#3E2723",
+    fontWeight: "500",
+    letterSpacing: -0.3,
+  },
+
+  // 3. 함께로 공유하기 버튼 (은은하고 낭만적인 파스텔 초코 핑크 톤 바)
+  actionShareButton: {
+    width: "100%",
+    height: 54,
+    backgroundColor: "rgba(212, 165, 154, 0.12)",
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  actionShareButtonText: {
+    fontSize: 14,
+    color: "#D4A59A",
+    fontWeight: "600",
+    letterSpacing: -0.3,
+  },
+
+  // 공용 아이콘 + 텍스트 행 정렬 툴
   buttonContentRow: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 8,
   },
 });
