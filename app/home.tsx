@@ -1,3 +1,4 @@
+// app/home.tsx
 import React from "react";
 import {
   StyleSheet,
@@ -6,7 +7,8 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { useRouter } from "expo-router";
+// 🌟 1. expo-router에서 Stack을 추가로 불러옵니다.
+import { useRouter, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useDiaryStore } from "../store/diaryStore";
 
@@ -30,6 +32,9 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.mainContainer}>
+      {/* 🌟 2. 상단 기본 Expo Router 헤더를 강제로 숨겨줍니다 */}
+      <Stack.Screen options={{ headerShown: false }} />
+
       <View style={styles.innerContainer}>
         {/* 🗓️ 상단 날짜 및 헤더 영역 */}
         <View style={styles.header}>
@@ -46,7 +51,7 @@ export default function HomeScreen() {
           {/* 1. 나혼자 다이어리 버튼 */}
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => handleModeSelect("solo")} // 👈 onClick에서 onPress로 완벽 수정!
+            onPress={() => handleModeSelect("solo")}
             style={styles.cardButton}
           >
             <View style={styles.cardContent}>
@@ -68,7 +73,7 @@ export default function HomeScreen() {
           {/* 2. 함께 다이어리 버튼 */}
           <TouchableOpacity
             activeOpacity={0.8}
-            onPress={() => handleModeSelect("together")} // 👈 onClick에서 onPress로 완벽 수정!
+            onPress={() => handleModeSelect("together")}
             style={styles.cardButton}
           >
             <View style={styles.cardContent}>

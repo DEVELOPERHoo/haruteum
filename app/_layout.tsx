@@ -10,7 +10,7 @@ export default function RootLayout() {
       <Stack.Screen
         name="(tabs)"
         options={{
-          headerShown: true,
+          headerShown: false,
           headerTitle: "하루 틈,",
           headerTitleAlign: "center",
           headerShadowVisible: false, // 👈 둔탁한 그림자(elevation/shadow)를 끄는 정석 옵션!

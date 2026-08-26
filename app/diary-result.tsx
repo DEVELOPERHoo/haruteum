@@ -1,5 +1,5 @@
 // app/diary-result.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,21 +9,18 @@ import {
   Image,
   Dimensions,
   Platform,
+  Share,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import {
-  ArrowLeft,
-  Download,
-  ExternalLink,
-  BookmarkPlus,
-} from "lucide-react-native";
+import { ArrowLeft, Download, ExternalLink } from "lucide-react-native";
 
 // 🌟 프로젝트 공용 상태/유틸/상수 임포트
 import { getFormattedDate } from "../utils/dateFormat";
 import { useDiaryStore } from "../store/diaryStore";
 import { EMOTION_LIST } from "../constants/emotions"; // 👈 내장 감정 리스트 상수가 있는 경로로 맞춰줘!
 import * as SecureStore from "expo-secure-store";
+import * as Sharing from "expo-sharing";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -32,8 +29,23 @@ export default function DiaryResultScreen() {
   const router = useRouter();
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+
   // 1. 스토어에서 백엔드가 내려준 진짜 응답 데이터와 청소 함수 가져오기
   const { resultData, resetForm } = useDiaryStore();
+
+  // 토큰에 따른 버튼 보이기 유무
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const accessToken = await SecureStore.getItemAsync("accessToken");
+        setIsLoggedIn(!!accessToken);
+      } catch (error) {
+        setIsLoggedIn(false);
+      }
+    };
+    checkToken();
+  }, []);
 
   // 🌟 정석적인 예외 방어 코드:
   // 만약 유저가 비정상적인 경로(새로고침 등)로 들어왔을 때 튕기는 것만 가볍게 방어하고 바로 리턴 처리
@@ -94,8 +106,19 @@ export default function DiaryResultScreen() {
     }
   };
 
+  const handleShare = async () => {
+    /*
+    await Share.share({
+      message: `하루틈에서 오늘의 기록을 남겼어요 💕\n\nharuteum://diary/result/${diaryId}`,
+      title: "오늘의 하루",
+    });
+    */
+  };
+
   return (
     <View style={styles.mainContainer}>
+      <Stack.Screen options={{ headerShown: false }} />
+
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}
@@ -214,21 +237,27 @@ export default function DiaryResultScreen() {
 
         {/* 🔘 하단 버튼 영역 */}
         <View style={styles.bottomArea}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            style={styles.actionMainButton}
-            onPress={handleSaveAction}
-          >
-            <View style={styles.buttonContentRow}>
-              <Download size={16} color="#FFFFFF" />
-              <Text style={styles.actionMainButtonText}>
-                이 순간을 저장하기
-              </Text>
-            </View>
-          </TouchableOpacity>
+          {!isLoggedIn && (
+            <TouchableOpacity
+              activeOpacity={0.8}
+              style={styles.actionMainButton}
+              onPress={handleSaveAction}
+            >
+              <View style={styles.buttonContentRow}>
+                <Download size={16} color="#FFFFFF" />
+                <Text style={styles.actionMainButtonText}>
+                  이 순간을 저장하기
+                </Text>
+              </View>
+            </TouchableOpacity>
+          )}
 
           {/* 2. 링크 공유하기 (깔끔하고 정갈한 화이트 풀 바) */}
-          <TouchableOpacity activeOpacity={0.8} style={styles.actionSubButton}>
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.actionSubButton}
+            onPress={handleShare}
+          >
             <View style={styles.buttonContentRow}>
               <ExternalLink size={16} color="#3E2723" />
               <Text style={styles.actionSubButtonText}>친구에게 공유하기</Text>
