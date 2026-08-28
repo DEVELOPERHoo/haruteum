@@ -1,5 +1,5 @@
 // app/diary-result.tsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,18 +9,16 @@ import {
   Image,
   Dimensions,
   Platform,
-  Share,
+  Alert,
 } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import { ArrowLeft, Download, ExternalLink } from "lucide-react-native";
+import { ArrowLeft, ExternalLink } from "lucide-react-native";
 
 // 🌟 프로젝트 공용 상태/유틸/상수 임포트
 import { getFormattedDate } from "../utils/dateFormat";
 import { useDiaryStore } from "../store/diaryStore";
 import { EMOTION_LIST } from "../constants/emotions"; // 👈 내장 감정 리스트 상수가 있는 경로로 맞춰줘!
-import * as SecureStore from "expo-secure-store";
-import * as Sharing from "expo-sharing";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -29,34 +27,33 @@ export default function DiaryResultScreen() {
   const router = useRouter();
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-
-  // 1. 스토어에서 백엔드가 내려준 진짜 응답 데이터와 청소 함수 가져오기
-  const { resultData, resetForm } = useDiaryStore();
-
-  // 토큰에 따른 버튼 보이기 유무
-  useEffect(() => {
-    const checkToken = async () => {
-      try {
-        const accessToken = await SecureStore.getItemAsync("accessToken");
-        setIsLoggedIn(!!accessToken);
-      } catch (error) {
-        setIsLoggedIn(false);
-      }
-    };
-    checkToken();
-  }, []);
-
+  // 스토어에서 백엔드가 내려준 진짜 응답 데이터와 청소 함수 가져오기
+  //const { resultData, resetForm } = useDiaryStore();
+  const resultData = {
+    comments: ["강아지와 요리해먹으면서 집콕함"],
+    createdAt: "2026-08-28T01:04:30.863Z",
+    emotions: ["happy"],
+    happyScore: 85,
+    images: [
+      "/uploads/1787879069405-493624610.jpeg",
+      "/uploads/1787879070240-209062405.jpeg",
+    ],
+    memoryId: "f4d3847d-43d5-4cad-a898-3720c3d9f61d",
+    mode: "solo",
+    recommendedSong: "브 루노 마스의 'Just the Way You Are'",
+    summary:
+      "오늘은 집에서 강아지랑 같이 요리도 하고 편안하게 집콕하면서 힐링한 날이었어!",
+  };
   // 🌟 정석적인 예외 방어 코드:
   // 만약 유저가 비정상적인 경로(새로고침 등)로 들어왔을 때 튕기는 것만 가볍게 방어하고 바로 리턴 처리
   if (!resultData) {
     return null;
   }
-
+  const memoryId = resultData.memoryId;
   const dateObj = new Date(resultData.createdAt);
   const formattedDate = getFormattedDate(dateObj); // 👈 수정된 함수에 서버 날짜 쏙 넣기
 
-  // 🌟 4. 감정 데이터 매핑 처리 (EMOTION_LIST 활용)
+  // 감정 데이터 매핑 처리 (EMOTION_LIST 활용)
   // 백엔드가 준 영어 감정 아이디 (예: "happy")를 내장 리스트에서 찾아서 이모지와 라벨을 복사해옵니다.
   const rawEmotionId = resultData.emotions?.[0] || "happy";
   const matchedEmotion = EMOTION_LIST.find(
@@ -84,26 +81,8 @@ export default function DiaryResultScreen() {
   };
 
   const handleExit = () => {
-    resetForm();
+    //resetForm();
     router.back();
-  };
-
-  const handleSaveAction = async () => {
-    const accessToken = await SecureStore.getItemAsync("accessToken");
-    console.log("엑세스 토큰은 : ", accessToken);
-    if (!accessToken) {
-      // 로그인 안 됐으면 로그인 화면으로
-      router.push("/login");
-      return;
-    }
-
-    try {
-      // apiRequest 안에서 토큰 갱신까지 자동 처리
-      //await saveDiary(diaryData);
-    } catch (error) {
-      // 갱신 실패 시 로그인으로
-      router.push("/login");
-    }
   };
 
   const handleShare = async () => {
@@ -113,6 +92,7 @@ export default function DiaryResultScreen() {
       title: "오늘의 하루",
     });
     */
+    Alert.alert("오류 😢", "추후 개발 예정입니다.", [{ text: "확인" }]);
   };
 
   return (
@@ -237,20 +217,17 @@ export default function DiaryResultScreen() {
 
         {/* 🔘 하단 버튼 영역 */}
         <View style={styles.bottomArea}>
-          {!isLoggedIn && (
-            <TouchableOpacity
-              activeOpacity={0.8}
-              style={styles.actionMainButton}
-              onPress={handleSaveAction}
-            >
-              <View style={styles.buttonContentRow}>
-                <Download size={16} color="#FFFFFF" />
-                <Text style={styles.actionMainButtonText}>
-                  이 순간을 저장하기
-                </Text>
-              </View>
-            </TouchableOpacity>
-          )}
+          {/* <TouchableOpacity
+            activeOpacity={0.8}
+            style={styles.actionMainButton}
+          >
+            <View style={styles.buttonContentRow}>
+              <Download size={16} color="#FFFFFF" />
+              <Text style={styles.actionMainButtonText}>
+                이 순간을 저장하기
+              </Text>
+            </View>
+          </TouchableOpacity> */}
 
           {/* 2. 링크 공유하기 (깔끔하고 정갈한 화이트 풀 바) */}
           <TouchableOpacity

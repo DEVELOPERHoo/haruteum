@@ -8,6 +8,7 @@ import {
   Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -28,6 +29,24 @@ export default function SplashScreen() {
 
     return () => clearTimeout(timer);
   }, []);
+
+  const checkLoginStatus = async () => {
+    const accessToken = await SecureStore.getItemAsync("accessToken");
+    console.log("엑세스 토큰은 : ", accessToken);
+    if (!accessToken) {
+      // 로그인 안 됐으면 로그인 화면으로
+      router.push("/login");
+    }
+
+    try {
+      router.push("/home");
+    } catch (error) {
+      // 갱신 실패 시 로그인으로
+      setTimeout(() => {
+        router.push("/login");
+      }, 2500);
+    }
+  };
 
   return (
     <View style={styles.container}>

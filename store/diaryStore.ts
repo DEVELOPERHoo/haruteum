@@ -3,6 +3,7 @@ import { create } from "zustand";
 
 // 1. 백엔드 응답 데이터 구조 타입을 정교하게 정의
 interface DiaryResultData {
+  memoryId: string;
   summary: string;
   images: string[];
   comments: string[];
