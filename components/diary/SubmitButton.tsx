@@ -38,7 +38,6 @@ export default function SubmitButton() {
 
       // 백엔드가 명세서에 열어둔 필드명(comment, emotionId)에 맞춰 데이터 토스!
 
-      /* 주석 풀것
       const result = await diaryService.createMemory({
         comment: content,
         emotionId: String(selectedEmotionId), // string으로 변환해서 전달
@@ -46,21 +45,19 @@ export default function SubmitButton() {
         mode: mode,
       });
       console.log("🚀 백엔드 응답 수신 완료:", result);
-      */
 
       // 🌟 [핵심 추가] 통신은 성공했으나 응답 본문이 빈 값(null, undefined, 또는 빈 객체)인지 검사
       // 백엔드가 필수적으로 줘야 하는 'summary' 같은 키값이 없거나 객체가 비어있다면 가로막습니다.
-      /* 주석 풀것
+
       if (!result || Object.keys(result).length === 0 || !result.summary) {
         throw new Error("SERVER_EMPTY_DATA"); // 에러를 강제로 발생시켜 catch문으로 토스!
       }
       // 2. 데이터 유효성 검사까지 통과했으므로 안심하고 스토어 주입 및 화면 이동!
       useDiaryStore.getState().setResultData(result);
-      */
+
       router.push("/diary-result");
     } catch (error: any) {
-      console.error("백엔드 통신 또는 데이터 오류:", error);
-
+      //console.error("백엔드 통신 또는 데이터 오류:", error);
       // 🌟 에러 원인에 따라 유저 팝업 문구 분기 처리
       if (error.message === "SERVER_EMPTY_DATA") {
         Alert.alert(
@@ -68,6 +65,8 @@ export default function SubmitButton() {
           "서버에서 분석 데이터를 안정적으로 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
           [{ text: "확인" }],
         );
+      } else if (error.message === "로그인 필요") {
+        router.push("/login");
       } else {
         Alert.alert(
           "기록 저장 실패 😢",

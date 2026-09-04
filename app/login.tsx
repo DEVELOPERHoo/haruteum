@@ -8,7 +8,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, Stack } from "expo-router";
 import { login } from "@react-native-seoul/kakao-login";
 import { ArrowLeft } from "lucide-react-native";
 import { loginWithKakao } from "../services/authService";
@@ -25,7 +25,7 @@ export default function LoginScreen() {
 
       // TODO: 백엔드 API 서버가 있다면 토큰 전송
       await loginWithKakao(tokenResult.accessToken); // 백엔드 전송
-      router.back(); // 로그인 성공 = 홈으로 이동
+      router.replace("/home");
     } catch (error: any) {
       // 🌟 디버깅을 위해 상세 에러 로그를 터미널에 출력합니다.
       console.error("❌ 카카오 로그인 에러 상세:", error);
@@ -47,6 +47,7 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
+      <Stack.Screen options={{ headerShown: false }} />
       {/* 뒤로가기 헤더 */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <ArrowLeft size={20} color="#3E2723" />

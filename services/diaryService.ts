@@ -1,5 +1,6 @@
 // services/diaryService.ts
 import { Platform } from "react-native";
+import { apiRequest } from "./apiClient";
 
 interface CreateMemoryParams {
   comment: string;
@@ -7,8 +8,6 @@ interface CreateMemoryParams {
   files: string[];
   mode: string;
 }
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
 
 export const diaryService = {
   createMemory: async ({
@@ -55,13 +54,17 @@ export const diaryService = {
     formData.append("mode", mode);
 
     // 3. POST 통신 실행 (문법 오류 및 중복 괄호 완전 청소 ✨)
-    const response = await fetch(`${BASE_URL}/api/v1/memory/create`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Accept: "application/json",
+    const response = await apiRequest(
+      "/api/v1/memory/create",
+      {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json",
+        },
       },
-    });
+      true, // ← isFormData: true 꼭 넣어주세요
+    );
 
     // 4. 백엔드가 준 가공 전 날것의 응답 텍스트 출력해보기
     const responseText = await response.text();

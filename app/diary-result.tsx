@@ -28,22 +28,7 @@ export default function DiaryResultScreen() {
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
   // 스토어에서 백엔드가 내려준 진짜 응답 데이터와 청소 함수 가져오기
-  //const { resultData, resetForm } = useDiaryStore();
-  const resultData = {
-    comments: ["강아지와 요리해먹으면서 집콕함"],
-    createdAt: "2026-08-28T01:04:30.863Z",
-    emotions: ["happy"],
-    happyScore: 85,
-    images: [
-      "/uploads/1787879069405-493624610.jpeg",
-      "/uploads/1787879070240-209062405.jpeg",
-    ],
-    memoryId: "f4d3847d-43d5-4cad-a898-3720c3d9f61d",
-    mode: "solo",
-    recommendedSong: "브 루노 마스의 'Just the Way You Are'",
-    summary:
-      "오늘은 집에서 강아지랑 같이 요리도 하고 편안하게 집콕하면서 힐링한 날이었어!",
-  };
+  const { resultData, resetForm } = useDiaryStore();
   // 🌟 정석적인 예외 방어 코드:
   // 만약 유저가 비정상적인 경로(새로고침 등)로 들어왔을 때 튕기는 것만 가볍게 방어하고 바로 리턴 처리
   if (!resultData) {
@@ -51,7 +36,7 @@ export default function DiaryResultScreen() {
   }
   const memoryId = resultData.memoryId;
   const dateObj = new Date(resultData.createdAt);
-  const formattedDate = getFormattedDate(dateObj); // 👈 수정된 함수에 서버 날짜 쏙 넣기
+  const formattedDate = getFormattedDate(dateObj);
 
   // 감정 데이터 매핑 처리 (EMOTION_LIST 활용)
   // 백엔드가 준 영어 감정 아이디 (예: "happy")를 내장 리스트에서 찾아서 이모지와 라벨을 복사해옵니다.
@@ -81,17 +66,11 @@ export default function DiaryResultScreen() {
   };
 
   const handleExit = () => {
-    //resetForm();
+    resetForm();
     router.back();
   };
 
   const handleShare = async () => {
-    /*
-    await Share.share({
-      message: `하루틈에서 오늘의 기록을 남겼어요 💕\n\nharuteum://diary/result/${diaryId}`,
-      title: "오늘의 하루",
-    });
-    */
     Alert.alert("오류 😢", "추후 개발 예정입니다.", [{ text: "확인" }]);
   };
 
@@ -168,7 +147,7 @@ export default function DiaryResultScreen() {
 
           {/* AI 요약 메시지 */}
           <View style={styles.summaryWrapper}>
-            <Text style={styles.summaryText}>"{summaryText}" 🌙</Text>
+            <Text style={styles.summaryText}>"{summaryText}"</Text>
           </View>
 
           <View style={styles.divider} />

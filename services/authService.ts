@@ -10,10 +10,13 @@ export const loginWithKakao = async (kakaoToken: string) => {
       Authorization: `Bearer ${kakaoToken}`,
     },
   });
-
+  // true 탈퇴 / false 일반사용자
   const data = await response.json();
-  await SecureStore.setItemAsync("accessToken", data.accessToken);
-  await SecureStore.setItemAsync("refreshToken", data.refreshToken);
+  console.log(data);
+  if (data.withdraw == false) {
+    await SecureStore.setItemAsync("accessToken", data.accessToken);
+    await SecureStore.setItemAsync("refreshToken", data.refreshToken);
+  }
 
   if (!response.ok) {
     throw new Error("백엔드 로그인 실패");
