@@ -11,7 +11,11 @@ import {
 import { useRouter, Stack } from "expo-router";
 import { login } from "@react-native-seoul/kakao-login";
 import { ArrowLeft } from "lucide-react-native";
-import { loginWithKakao } from "../services/authService";
+import {
+  loginWithKakao,
+  saveTokens,
+  restoreAccount,
+} from "../services/authService";
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -21,10 +25,41 @@ export default function LoginScreen() {
       console.log("카카오 로그인 프로세스 시작...");
       const tokenResult = await login();
 
-      console.log("✅ 로그인 성공! 토큰 획득:", tokenResult.accessToken);
+      console.log("카카오토큰 획득:", tokenResult.accessToken);
+      const data = await loginWithKakao(tokenResult.accessToken);
 
-      // TODO: 백엔드 API 서버가 있다면 토큰 전송
-      await loginWithKakao(tokenResult.accessToken); // 백엔드 전송
+      if (data.withdraw) {
+        // 탈퇴 회원 → 복귀 의사 확인
+        Alert.alert(
+          "탈퇴한 계정",
+          "이전에 탈퇴한 계정이에요.\n다시 시작하시겠어요?",
+          [
+            {
+              text: "아니오",
+              style: "cancel",
+              onPress: () => {},
+            },
+            {
+              text: "네, 복귀할게요",
+              onPress: async () => {
+                try {
+                  // 복귀 API 호출
+                  await restoreAccount(data.accessToken);
+
+                  // 복귀 성공 → 토큰 저장 후 홈으로
+                  await saveTokens(data.accessToken, data.refreshToken);
+                  router.replace("/home");
+                } catch (error) {
+                  console.log(error);
+                  Alert.alert("오류", "복귀 처리 중 문제가 발생했습니다.");
+                }
+              },
+            },
+          ],
+        );
+        return; // 탈퇴 회원이면 여기서 종료
+      }
+      await saveTokens(data.accessToken, data.refreshToken);
       router.replace("/home");
     } catch (error: any) {
       // 🌟 디버깅을 위해 상세 에러 로그를 터미널에 출력합니다.

@@ -12,6 +12,7 @@ import { useRouter, Stack } from "expo-router";
 import { ArrowLeft, LogOut, UserX, ChevronRight } from "lucide-react-native";
 import { logout } from "@react-native-seoul/kakao-login";
 import * as SecureStore from "expo-secure-store";
+import { deleteAccount } from "../../services/authService";
 
 export default function AccountDetailScreen() {
   const router = useRouter();
@@ -64,10 +65,11 @@ export default function AccountDetailScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              await SecureStore.deleteItemAsync("accessToken");
+              await deleteAccount();
               Alert.alert("처리 완료", "회원 탈퇴가 완료되었습니다.");
               router.replace("/login");
             } catch (error) {
+              console.log("삭제 에러 상세:", error);
               Alert.alert("오류", "탈퇴 처리 중 문제가 발생했습니다.");
             }
           },

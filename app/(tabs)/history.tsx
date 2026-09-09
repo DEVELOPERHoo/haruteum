@@ -14,7 +14,7 @@ import {
 import { useRouter, usePathname } from "expo-router";
 import { Check, Trash2, X } from "lucide-react-native";
 import { useDiaryStore } from "../../store/diaryStore";
-import { fetchHistory } from "../../services/historyService";
+import { fetchHistory, deleteMemories } from "../../services/historyService";
 import { EMOTION_LIST } from "../../constants/emotions";
 
 const { width } = Dimensions.get("window");
@@ -138,13 +138,12 @@ export default function HistoryScreen() {
           style: "destructive",
           onPress: async () => {
             try {
-              // TODO: 백엔드 다중 삭제 API 호출 (예: await deleteMultipleMemoriesApi(selectedIds))
-              console.log("삭제할 Memory IDs (string[]):", selectedIds);
-
+              await deleteMemories(selectedIds);
               exitSelectionMode();
               resetHistory();
               loadMore(true);
             } catch (error) {
+              console.log("삭제 에러 상세:", error);
               Alert.alert("오류", "삭제 처리 중 문제가 발생했습니다.");
             }
           },
@@ -318,6 +317,46 @@ export default function HistoryScreen() {
         <View style={styles.pageContainer} />
 
         <View style={styles.pageContainer}>
+          {/* 동적 헤더 (일반 ↔ 선택 모드) */}
+          {isSelectionMode ? (
+            <View style={styles.selectionHeader}>
+              <TouchableOpacity
+                style={styles.headerBtn}
+                onPress={exitSelectionMode}
+                activeOpacity={0.7}
+              >
+                <X size={18} color="#3E2723" />
+                <Text style={styles.headerBtnText}>취소</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.selectionTitle}>
+                {selectedIds.length}개 선택됨
+              </Text>
+
+              <TouchableOpacity
+                style={[
+                  styles.headerBtn,
+                  selectedIds.length === 0 && styles.disabledBtn,
+                ]}
+                onPress={handleDeleteSelected}
+                activeOpacity={0.7}
+                disabled={selectedIds.length === 0}
+              >
+                <Trash2 size={16} color="#D84315" />
+                <Text style={[styles.headerBtnText, { color: "#D84315" }]}>
+                  삭제
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.header}>
+              <Text style={styles.headerSub}>MY RECORDS</Text>
+              <Text style={styles.headerTitle}>나의 기록</Text>
+              <Text style={styles.headerHint}>
+                * 기록을 꾹 누르면 다중 삭제할 수 있어요
+              </Text>
+            </View>
+          )}
           <ScrollView
             showsVerticalScrollIndicator={false}
             onScrollEndDrag={({ nativeEvent }) => {
@@ -329,47 +368,6 @@ export default function HistoryScreen() {
               if (isBottom) handleEndReached();
             }}
           >
-            {/* 동적 헤더 (일반 ↔ 선택 모드) */}
-            {isSelectionMode ? (
-              <View style={styles.selectionHeader}>
-                <TouchableOpacity
-                  style={styles.headerBtn}
-                  onPress={exitSelectionMode}
-                  activeOpacity={0.7}
-                >
-                  <X size={18} color="#3E2723" />
-                  <Text style={styles.headerBtnText}>취소</Text>
-                </TouchableOpacity>
-
-                <Text style={styles.selectionTitle}>
-                  {selectedIds.length}개 선택됨
-                </Text>
-
-                <TouchableOpacity
-                  style={[
-                    styles.headerBtn,
-                    selectedIds.length === 0 && styles.disabledBtn,
-                  ]}
-                  onPress={handleDeleteSelected}
-                  activeOpacity={0.7}
-                  disabled={selectedIds.length === 0}
-                >
-                  <Trash2 size={16} color="#D84315" />
-                  <Text style={[styles.headerBtnText, { color: "#D84315" }]}>
-                    삭제
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={styles.header}>
-                <Text style={styles.headerSub}>MY RECORDS</Text>
-                <Text style={styles.headerTitle}>나의 기록</Text>
-                <Text style={styles.headerHint}>
-                  * 기록을 꾹 누르면 다중 삭제할 수 있어요
-                </Text>
-              </View>
-            )}
-
             <View style={styles.filterRow}>
               {(["전체", "나혼자", "함께"] as FilterType[]).map((f) => (
                 <TouchableOpacity

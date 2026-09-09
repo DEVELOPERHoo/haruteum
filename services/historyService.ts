@@ -30,3 +30,19 @@ export const fetchHistory = async ({
     throw error;
   }
 };
+
+export const deleteMemories = async (memoryIds: string[]) => {
+  const params = memoryIds.map((id) => `memoryIds=${id}`).join("&");
+
+  const res = await apiRequest(`/api/v1/memory?${params}`, {
+    method: "DELETE",
+  });
+
+  // 빈 응답(204 No Content)이면 json() 호출 안 함
+  //if (res.status === 204 || res.headers.get("content-length") === "0") return;
+
+  const text = await res.text();
+  if (!text) return; // ← 빈 응답이면 그냥 리턴
+
+  return JSON.parse(text);
+};
