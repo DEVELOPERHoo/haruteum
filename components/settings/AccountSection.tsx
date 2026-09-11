@@ -6,12 +6,6 @@ import { ChevronRight, User, Settings } from "lucide-react-native";
 
 export default function AccountSection() {
   const router = useRouter();
-
-  // 사용자 정보 버튼 클릭 핸들러
-  const handleUserInfo = () => {
-    Alert.alert("사용자 정보 👤", "카카오 계정으로 로그인 중입니다.");
-  };
-
   return (
     <View style={styles.section}>
       <Text style={styles.sectionCategory}>내 계정</Text>
@@ -21,7 +15,7 @@ export default function AccountSection() {
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
-          onPress={handleUserInfo}
+          onPress={() => router.push("/setting-menu/user-info")}
         >
           <View style={styles.menuLeft}>
             <View style={[styles.iconCircle, { backgroundColor: "#F5ECE9" }]}>

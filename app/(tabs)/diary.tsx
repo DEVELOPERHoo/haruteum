@@ -1,6 +1,14 @@
 // app/(tabs)/diary.tsx
-import React, { useEffect, useRef } from "react";
-import { StyleSheet, ScrollView, View, Dimensions } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  StyleSheet,
+  ScrollView,
+  View,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Dimensions,
+} from "react-native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useRouter, usePathname } from "expo-router";
 import DateHeader from "../../components/diary/DateHeader";
@@ -15,13 +23,41 @@ export default function DiaryScreen() {
   const router = useRouter();
   const pathname = usePathname();
   const horizontalScrollRef = useRef<ScrollView>(null);
-  const keyboardScrollRef = useRef<KeyboardAwareScrollView>(null);
-
+  const verticalScrollRef = useRef<ScrollView>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   useEffect(() => {
     if (pathname === "/diary" || pathname === "/") {
       horizontalScrollRef.current?.scrollTo({ x: 0, animated: false });
     }
   }, [pathname]);
+
+  useEffect(() => {
+    const show = Keyboard.addListener("keyboardDidShow", (e) => {
+      setKeyboardHeight(e.endCoordinates.height);
+      // 키보드 완전히 올라온 후 스크롤
+      if (pendingScrollY.current !== null) {
+        verticalScrollRef.current?.scrollTo({
+          y: pendingScrollY.current,
+          animated: true,
+        });
+        pendingScrollY.current = null;
+      }
+    });
+    const hide = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardHeight(0);
+    });
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+
+  const pendingScrollY = useRef<number | null>(null);
+
+  // TextInput 포커스 시 y값만 저장
+  const handleTextInputFocused = (y: number) => {
+    pendingScrollY.current = y - 300; // ← 스크롤할 위치 저장
+  };
 
   const handleHorizontalScroll = (e: any) => {
     const contentOffsetX = e.nativeEvent.contentOffset.x;
@@ -31,7 +67,10 @@ export default function DiaryScreen() {
   };
 
   return (
-    <View style={styles.baseContainer}>
+    <KeyboardAvoidingView
+      style={styles.baseContainer}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
       <ScrollView
         ref={horizontalScrollRef}
         horizontal
@@ -40,29 +79,28 @@ export default function DiaryScreen() {
         onMomentumScrollEnd={handleHorizontalScroll}
         contentContainerStyle={styles.horizontalWrapper}
         keyboardShouldPersistTaps="handled"
+        scrollEnabled={keyboardHeight === 0} // ← 키보드 올라오면 가로 스크롤 막기
       >
         {/* 1번 페이지: 다이어리 폼 */}
-        <KeyboardAwareScrollView
-          ref={keyboardScrollRef} // ← ref 추가
-          style={styles.pageContainer}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          enableOnAndroid={true}
-          extraScrollHeight={20} // ← 작게 유지
-          enableAutomaticScroll={false} // ← 자동 스크롤 끄기
-        >
-          <DateHeader />
-          <PhotoCard />
-          <TextInput scrollRef={keyboardScrollRef} />
-          <EmojiPicker />
-          <SubmitButton />
-        </KeyboardAwareScrollView>
+        <View style={styles.pageContainer}>
+          <ScrollView
+            ref={verticalScrollRef}
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <DateHeader />
+            <PhotoCard />
+            <TextInput onFocused={handleTextInputFocused} />
+            <EmojiPicker />
+            <SubmitButton />
+          </ScrollView>
+        </View>
 
-        {/* 2번 페이지: 스와이프용 빈 공간 */}
+        {/* 2번 페이지 */}
         <View style={styles.pageContainer} />
       </ScrollView>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -73,6 +111,6 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 24,
     alignItems: "center",
-    paddingBottom: 60,
+    paddingBottom: 40,
   },
 });

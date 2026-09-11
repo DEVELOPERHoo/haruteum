@@ -34,6 +34,7 @@ export default function HistoryScreen() {
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const {
+    mode,
     historyList,
     historyPage,
     historyHasNext,
@@ -368,28 +369,32 @@ export default function HistoryScreen() {
               if (isBottom) handleEndReached();
             }}
           >
-            <View style={styles.filterRow}>
-              {(["전체", "나혼자", "함께"] as FilterType[]).map((f) => (
-                <TouchableOpacity
-                  key={f}
-                  style={[
-                    styles.filterBtn,
-                    filter === f && styles.filterBtnActive,
-                  ]}
-                  onPress={() => setFilter(f)}
-                  disabled={isSelectionMode}
-                >
-                  <Text
+            {mode !== "solo" ? (
+              <View style={styles.filterRow}>
+                {(["전체", "나혼자", "함께"] as FilterType[]).map((f) => (
+                  <TouchableOpacity
+                    key={f}
                     style={[
-                      styles.filterText,
-                      filter === f && styles.filterTextActive,
+                      styles.filterBtn,
+                      filter === f && styles.filterBtnActive,
                     ]}
+                    onPress={() => setFilter(f)}
+                    disabled={isSelectionMode}
                   >
-                    {f}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                    <Text
+                      style={[
+                        styles.filterText,
+                        filter === f && styles.filterTextActive,
+                      ]}
+                    >
+                      {f}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <></>
+            )}
 
             {historyList.length === 0 && !isHistoryLoading && (
               <View style={styles.emptyContainer}>

@@ -1,29 +1,33 @@
-import React, { useRef } from "react";
-import { StyleSheet, TextInput as RNTextInput, View, Text } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+// components/diary/TextInput.tsx
+import React, { useRef, useEffect, useState } from "react";
+import {
+  StyleSheet,
+  TextInput as RNTextInput,
+  View,
+  Text,
+  Keyboard,
+  Platform,
+} from "react-native";
 import { useDiaryStore } from "../../store/diaryStore";
 
 interface Props {
-  scrollRef: React.RefObject<KeyboardAwareScrollView>;
+  onFocused: (y: number) => void; // ← 부모에게 위치 전달
 }
 
-export default function TextInput({ scrollRef }: Props) {
+export default function TextInput({ onFocused }: Props) {
   const { content, setContent, mode } = useDiaryStore();
-  const inputRef = useRef<RNTextInput>(null);
+  const containerRef = useRef<View>(null);
 
   const handleFocus = () => {
-    if (inputRef.current) {
-      scrollRef.current?.scrollToFocusedInput(
-        inputRef.current as any,
-        110, // ← 키보드 위 여유 공간
-      );
-    }
+    containerRef.current?.measureInWindow((x, y) => {
+      console.log("TextInput y 좌표 : ", y);
+      onFocused(y); // ← 부모에게 y 좌표 전달
+    });
   };
 
   return (
-    <View style={styles.container}>
+    <View ref={containerRef} style={styles.container}>
       <RNTextInput
-        ref={inputRef}
         style={styles.input}
         placeholder={
           mode === "solo"
@@ -35,7 +39,7 @@ export default function TextInput({ scrollRef }: Props) {
         maxLength={150}
         value={content}
         onChangeText={setContent}
-        onFocus={handleFocus} // ← 포커스 시 정확한 위치로 스크롤
+        onFocus={handleFocus}
       />
       <View style={styles.footerRow}>
         <Text style={styles.tipText}>짧아도 괜찮아</Text>
@@ -61,19 +65,11 @@ const styles = StyleSheet.create({
   },
   footerRow: {
     flexDirection: "row",
-    justifyContent: "space-between", // 왼쪽 끝과 오른쪽 끝으로 양 갈래 정렬!
+    justifyContent: "space-between",
     alignItems: "center",
     marginTop: 6,
     paddingHorizontal: 4,
   },
-  tipText: {
-    fontSize: 12,
-    color: "#A2948F", // 전체 베이지 톤과 어울리는 부드러운 브라운 감성 정체색
-    fontWeight: "500",
-  },
-  counter: {
-    fontSize: 12,
-    color: "#AAA",
-    fontWeight: "400",
-  },
+  tipText: { fontSize: 12, color: "#A2948F", fontWeight: "500" },
+  counter: { fontSize: 12, color: "#AAA", fontWeight: "400" },
 });

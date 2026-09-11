@@ -28,8 +28,8 @@ export default function LoginScreen() {
       console.log("카카오토큰 획득:", tokenResult.accessToken);
       const data = await loginWithKakao(tokenResult.accessToken);
 
+      // 탈퇴 회원 → 복귀 의사 확인
       if (data.withdraw) {
-        // 탈퇴 회원 → 복귀 의사 확인
         Alert.alert(
           "탈퇴한 계정",
           "이전에 탈퇴한 계정이에요.\n다시 시작하시겠어요?",
@@ -71,7 +71,6 @@ export default function LoginScreen() {
           "서비스를 이용하시려면 로그인이 필요합니다. ☺️",
         );
       } else {
-        // 상세 에러 메시지를 얼럿으로도 띄워 원인 파악을 돕습니다.
         Alert.alert(
           "오류",
           `로그인 처리 중 문제가 발생했습니다.\n(${error?.message || "알 수 없는 에러"})`,
