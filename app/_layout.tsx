@@ -5,8 +5,6 @@ export default function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="index" options={{ headerShown: false }} />
-
-      {/* 🌟 탭 그룹 전체에 완벽한 순정 헤더 설정 적용 */}
       <Stack.Screen
         name="(tabs)"
         options={{
@@ -23,7 +21,6 @@ export default function RootLayout() {
             fontSize: 18,
             fontWeight: "700",
             color: "#333333",
-            // 👈 에러 나던 letterSpacing을 안전하게 제외하거나 정수로 조율!
           },
         }}
       />

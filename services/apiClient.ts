@@ -1,7 +1,6 @@
 // services/apiClient.ts
 import * as SecureStore from "expo-secure-store";
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+import { BASE_URL } from "../constants/config";
 
 // accessToken 갱신
 export const refreshAccessToken = async () => {

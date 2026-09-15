@@ -14,7 +14,7 @@ import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { apiRequest } from "../../services/apiClient";
 import { getFormattedDate } from "../../utils/dateFormat";
-import { EMOTION_LIST } from "../../constants/emotions";
+import { getEmotionEmoji } from "../../constants/emotions";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -62,9 +62,7 @@ export default function MemoryDetailScreen() {
   }
 
   const formattedDate = getFormattedDate(new Date(data.createdAt));
-  const matchedEmotion = EMOTION_LIST.find(
-    (item) => item.id.toLowerCase() === data.emotions?.[0]?.toLowerCase(),
-  ) || { emoji: "☺️", label: "행복해" };
+  const matchedEmotion = getEmotionEmoji(data.emotions?.[0]);
 
   const photos = data.images?.length > 0 ? data.images : [];
 

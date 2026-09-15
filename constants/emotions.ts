@@ -1,9 +1,4 @@
-// constants/emotions.ts
-export interface EmotionItem {
-  id: string;
-  emoji: string;
-  label: string;
-}
+import { EmotionItem } from "../types";
 
 export const EMOTION_LIST: EmotionItem[] = [
   { id: "love", emoji: "🥰", label: "사랑해" },
@@ -15,3 +10,11 @@ export const EMOTION_LIST: EmotionItem[] = [
   { id: "tired", emoji: "😴", label: "피곤해" },
   { id: "sad", emoji: "🥲", label: "슬퍼" },
 ];
+
+export const getEmotionEmoji = (emotionId: string): EmotionItem => {
+  return (
+    EMOTION_LIST.find(
+      (item) => item.id.toLowerCase() === emotionId?.toLowerCase(),
+    ) || { id: "happy", emoji: "☺️", label: "행복해" }
+  ); // 못 찾으면 행복해를 디폴트로 방어
+};

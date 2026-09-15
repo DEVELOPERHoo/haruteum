@@ -1,8 +1,7 @@
 // services/authService.ts
 import * as SecureStore from "expo-secure-store";
 import { apiRequest } from "./apiClient";
-
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
+import { BASE_URL } from "../constants/config";
 
 interface KakaoLoginResponse {
   accessToken: string;

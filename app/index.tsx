@@ -1,4 +1,3 @@
-// 초기 메인 화면 로딩창
 import React, { useEffect } from "react";
 import {
   StyleSheet,
@@ -16,7 +15,6 @@ export default function SplashScreen() {
   const fadeAnim = React.useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // 로고 페이드인 애니메이션
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 1000,

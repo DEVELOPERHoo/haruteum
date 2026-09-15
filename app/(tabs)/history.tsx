@@ -13,9 +13,12 @@ import {
 } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import { Check, Trash2, X } from "lucide-react-native";
+import { useHistoryStore } from "../../store/historyStore";
 import { useDiaryStore } from "../../store/diaryStore";
 import { fetchHistory, deleteMemories } from "../../services/historyService";
-import { EMOTION_LIST } from "../../constants/emotions";
+import { getEmotionEmoji } from "../../constants/emotions";
+import { BASE_URL } from "../../constants/config";
+import { formatDate, groupingMonth } from "../../utils/dateFormat";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 32 - 8) / 3;
@@ -27,30 +30,35 @@ export default function HistoryScreen() {
   const pathname = usePathname();
   const horizontalScrollRef = useRef<ScrollView>(null);
   const [filter, setFilter] = useState<FilterType>("전체");
-  const backendBaseUrl = process.env.EXPO_PUBLIC_API_URL;
 
   // 🌟 다중 선택 모드 상태 (memoryId가 string 타입이므로 string[]으로 지정)
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const {
-    mode,
     historyList,
     historyPage,
     historyHasNext,
     isHistoryLoading,
+    isHistoryStale,
     appendHistoryList,
     setHistoryPage,
     setHistoryHasNext,
     setIsHistoryLoading,
+    setIsHistoryStale,
     resetHistory,
-  } = useDiaryStore();
+  } = useHistoryStore();
+
+  const { mode } = useDiaryStore();
 
   useEffect(() => {
-    if (pathname === "/history") {
-      horizontalScrollRef.current?.scrollTo({ x: width, animated: false });
+    if (pathname !== "/history") return;
+    horizontalScrollRef.current?.scrollTo({ x: width, animated: false });
+
+    if (historyList.length === 0 || isHistoryStale) {
       resetHistory();
       loadMore(true);
+      setIsHistoryStale(false); // 플래그 초기화
       exitSelectionMode();
     }
   }, [pathname]);
@@ -140,6 +148,7 @@ export default function HistoryScreen() {
           onPress: async () => {
             try {
               await deleteMemories(selectedIds);
+              setIsHistoryStale(true);
               exitSelectionMode();
               resetHistory();
               loadMore(true);
@@ -151,28 +160,6 @@ export default function HistoryScreen() {
         },
       ],
     );
-  };
-
-  const formatDate = (createdAt: string) => {
-    const date = new Date(createdAt);
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const day = String(date.getDate()).padStart(2, "0");
-    return `${month}.${day}`;
-  };
-
-  const groupingMonth = (createdAt: string) => {
-    const date = new Date(createdAt);
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    return `${year}.${month}`;
-  };
-
-  const emotionToEmoji = (emotions: string) => {
-    const matchedEmotion = EMOTION_LIST.find(
-      (item) => item.id.toLowerCase() === emotions.toLowerCase(),
-    ) || { id: "happy", emoji: "☺️", label: "행복해" };
-
-    return matchedEmotion.emoji;
   };
 
   const handleHorizontalScroll = (e: any) => {
@@ -202,7 +189,7 @@ export default function HistoryScreen() {
       images && images.length > 0
         ? images[0].startsWith("http")
           ? images[0]
-          : `${backendBaseUrl}${images[0]}`
+          : `${BASE_URL}${images[0]}`
         : "https://picsum.photos/800/1000?random=1";
     return thumbnail;
   };
@@ -270,7 +257,7 @@ export default function HistoryScreen() {
                   </Text>
                   <View>
                     <Text style={styles.cardEmoji}>
-                      {emotionToEmoji(item.emotions?.[0])}
+                      {getEmotionEmoji(item.emotions?.[0]).emoji}
                     </Text>
                     <Text style={styles.cardScore}>{item.happyScore}%</Text>
                   </View>

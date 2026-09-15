@@ -9,7 +9,6 @@ import {
   Platform,
   Dimensions,
 } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useRouter, usePathname } from "expo-router";
 import DateHeader from "../../components/diary/DateHeader";
 import PhotoCard from "../../components/diary/PhotoCard";

@@ -1,4 +1,3 @@
-// app/home.tsx
 import React from "react";
 import {
   StyleSheet,
@@ -7,7 +6,6 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-// 🌟 1. expo-router에서 Stack을 추가로 불러옵니다.
 import { useRouter, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useDiaryStore } from "../store/diaryStore";
@@ -32,11 +30,9 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.mainContainer}>
-      {/* 🌟 2. 상단 기본 Expo Router 헤더를 강제로 숨겨줍니다 */}
       <Stack.Screen options={{ headerShown: false }} />
 
       <View style={styles.innerContainer}>
-        {/* 🗓️ 상단 날짜 및 헤더 영역 */}
         <View style={styles.header}>
           <Text style={styles.dateText}>
             {year}. {String(month).padStart(2, "0")}.{" "}
@@ -46,9 +42,7 @@ export default function HomeScreen() {
           <Text style={styles.subTitle}>어떤 기록을 남길까요?</Text>
         </View>
 
-        {/* 🔘 선택 버튼 영역 */}
         <View style={styles.buttonArea}>
-          {/* 1. 나혼자 다이어리 버튼 */}
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => handleModeSelect("solo")}
@@ -70,7 +64,6 @@ export default function HomeScreen() {
             <Text style={styles.cornerTag}>MY DAY</Text>
           </TouchableOpacity>
 
-          {/* 2. 함께 다이어리 버튼 */}
           <TouchableOpacity
             activeOpacity={0.8}
             onPress={() => handleModeSelect("together")}
@@ -93,7 +86,6 @@ export default function HomeScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ✉️ 푸터 영문 레터링 */}
         <Text style={styles.footerText}>EVERYDAY DIARY</Text>
       </View>
     </View>

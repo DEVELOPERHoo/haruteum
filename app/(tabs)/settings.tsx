@@ -1,4 +1,3 @@
-// app/(tabs)/settings.tsx
 import React, { useEffect, useRef } from "react";
 import {
   StyleSheet,
@@ -10,7 +9,6 @@ import {
 } from "react-native";
 import { useRouter, usePathname, Stack } from "expo-router";
 
-// 🌟 분리해둔 메뉴 섹션 컴포넌트 불러오기
 import AccountSection from "../../components/settings/AccountSection";
 
 const { width } = Dimensions.get("window");

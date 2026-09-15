@@ -15,10 +15,10 @@ import { useRouter, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { ArrowLeft, ExternalLink } from "lucide-react-native";
 
-// 🌟 프로젝트 공용 상태/유틸/상수 임포트
 import { getFormattedDate } from "../utils/dateFormat";
 import { useDiaryStore } from "../store/diaryStore";
-import { EMOTION_LIST } from "../constants/emotions"; // 👈 내장 감정 리스트 상수가 있는 경로로 맞춰줘!
+import { getEmotionEmoji } from "../constants/emotions";
+import { BASE_URL } from "../constants/config";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -27,30 +27,20 @@ export default function DiaryResultScreen() {
   const router = useRouter();
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
 
-  // 스토어에서 백엔드가 내려준 진짜 응답 데이터와 청소 함수 가져오기
   const { resultData, resetForm } = useDiaryStore();
-  // 🌟 정석적인 예외 방어 코드:
   // 만약 유저가 비정상적인 경로(새로고침 등)로 들어왔을 때 튕기는 것만 가볍게 방어하고 바로 리턴 처리
   if (!resultData) {
     return null;
   }
-  const memoryId = resultData.memoryId;
   const dateObj = new Date(resultData.createdAt);
   const formattedDate = getFormattedDate(dateObj);
 
-  // 감정 데이터 매핑 처리 (EMOTION_LIST 활용)
-  // 백엔드가 준 영어 감정 아이디 (예: "happy")를 내장 리스트에서 찾아서 이모지와 라벨을 복사해옵니다.
-  const rawEmotionId = resultData.emotions?.[0] || "happy";
-  const matchedEmotion = EMOTION_LIST.find(
-    (item) => item.id.toLowerCase() === rawEmotionId.toLowerCase(),
-  ) || { id: "happy", emoji: "☺️", label: "행복해" }; // 못 찾으면 행복해를 디폴트로 방어
+  const matchedEmotion = getEmotionEmoji(resultData.emotions?.[0] || "happy");
 
-  const backendBaseUrl = process.env.EXPO_PUBLIC_API_URL;
-  // 5. 기타 데이터 바인딩
   const photos =
     resultData.images && resultData.images.length > 0
       ? resultData.images.map((img) =>
-          img.startsWith("http") ? img : `${backendBaseUrl}${img}`,
+          img.startsWith("http") ? img : `${BASE_URL}${img}`,
         )
       : ["https://picsum.photos/800/1000?random=1"];
 

@@ -1,13 +1,6 @@
 // components/diary/TextInput.tsx
-import React, { useRef, useEffect, useState } from "react";
-import {
-  StyleSheet,
-  TextInput as RNTextInput,
-  View,
-  Text,
-  Keyboard,
-  Platform,
-} from "react-native";
+import React, { useRef } from "react";
+import { StyleSheet, TextInput as RNTextInput, View, Text } from "react-native";
 import { useDiaryStore } from "../../store/diaryStore";
 
 interface Props {
@@ -20,7 +13,6 @@ export default function TextInput({ onFocused }: Props) {
 
   const handleFocus = () => {
     containerRef.current?.measureInWindow((x, y) => {
-      console.log("TextInput y 좌표 : ", y);
       onFocused(y); // ← 부모에게 y 좌표 전달
     });
   };
