@@ -95,5 +95,3 @@ haruteum/
 └── utils/
 ├── dateFormat.ts ← 날짜 포맷
 └── aiPrompt.ts ← AI 프롬프트 템플릿
-
-backend : http://172.17.22.116:3000/swagger

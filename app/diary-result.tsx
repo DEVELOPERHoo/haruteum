@@ -1,5 +1,5 @@
 // app/diary-result.tsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -11,6 +11,8 @@ import {
   Platform,
   Alert,
 } from "react-native";
+import ViewShot from "react-native-view-shot";
+import * as Sharing from "expo-sharing";
 import { useRouter, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { ArrowLeft, ExternalLink } from "lucide-react-native";
@@ -26,6 +28,7 @@ const CARD_WIDTH = width - 40;
 export default function DiaryResultScreen() {
   const router = useRouter();
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
+  const viewShotRef = useRef<any>(null);
 
   const { resultData, resetForm } = useDiaryStore();
   // 만약 유저가 비정상적인 경로(새로고침 등)로 들어왔을 때 튕기는 것만 가볍게 방어하고 바로 리턴 처리
@@ -61,7 +64,23 @@ export default function DiaryResultScreen() {
   };
 
   const handleShare = async () => {
-    Alert.alert("오류 😢", "추후 개발 예정입니다.", [{ text: "확인" }]);
+    try {
+      const uri = await viewShotRef.current?.capture?.();
+      if (!uri) return;
+
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        Alert.alert("공유불가", "이 기기에서는 공유를 지원하지 않아요.");
+        return;
+      }
+      await Sharing.shareAsync(uri, {
+        mimeType: "image/png",
+        dialogTitle: "오늘의 하루 공유하기",
+      });
+    } catch (error) {
+      console.log("공유 에러:", error);
+      Alert.alert("오류", "공유 중 문제가 발생했습니다.");
+    }
   };
 
   return (
@@ -87,101 +106,103 @@ export default function DiaryResultScreen() {
 
         {/* 🤍 일체형 매거진 카드 */}
         <View style={styles.mainCard}>
-          {/* 📸 가로 슬라이드 사진 영역 */}
-          {photos && photos.length > 0 && (
-            <View style={styles.imageSliderWrapper}>
-              <ScrollView
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                onScroll={handlePhotoScroll}
-                scrollEventThrottle={16}
-                nestedScrollEnabled={true}
-              >
-                {photos.map((uri, index) => (
-                  <View
-                    key={index}
-                    style={{ width: CARD_WIDTH, aspectRatio: 4 / 3 }}
-                  >
-                    <Image
-                      source={{ uri }}
-                      style={styles.diaryImage}
-                      resizeMode="cover"
-                    />
-                  </View>
-                ))}
-              </ScrollView>
+          <ViewShot ref={viewShotRef} options={{ format: "png", quality: 1.0 }}>
+            {/* 📸 가로 슬라이드 사진 영역 */}
+            {photos && photos.length > 0 && (
+              <View style={styles.imageSliderWrapper}>
+                <ScrollView
+                  horizontal
+                  pagingEnabled
+                  showsHorizontalScrollIndicator={false}
+                  onScroll={handlePhotoScroll}
+                  scrollEventThrottle={16}
+                  nestedScrollEnabled={true}
+                >
+                  {photos.map((uri, index) => (
+                    <View
+                      key={index}
+                      style={{ width: CARD_WIDTH, aspectRatio: 4 / 3 }}
+                    >
+                      <Image
+                        source={{ uri }}
+                        style={styles.diaryImage}
+                        resizeMode="cover"
+                      />
+                    </View>
+                  ))}
+                </ScrollView>
 
-              {/* 장수 표시 인디케이터 */}
-              <View style={styles.photoCountBadge}>
-                <Text style={styles.photoCountText}>
-                  {activePhotoIndex + 1} / {photos.length}
+                {/* 장수 표시 인디케이터 */}
+                <View style={styles.photoCountBadge}>
+                  <Text style={styles.photoCountText}>
+                    {activePhotoIndex + 1} / {photos.length}
+                  </Text>
+                </View>
+
+                <Text style={styles.imageTagText}>
+                  {mode === "solo" ? "MY MEMORY" : "OUR STORY"}
                 </Text>
               </View>
+            )}
 
-              <Text style={styles.imageTagText}>
-                {mode === "solo" ? "MY MEMORY" : "OUR STORY"}
-              </Text>
+            {/* 날짜 헤더 (dateFormat.ts와 동일 규격의 실시간 날짜 반영 완료 ✨) */}
+            <View
+              style={[
+                styles.cardHeader,
+                photos.length === 0 && { paddingTop: 28 },
+              ]}
+            >
+              <Text style={styles.dateText}>{formattedDate}</Text>
             </View>
-          )}
 
-          {/* 날짜 헤더 (dateFormat.ts와 동일 규격의 실시간 날짜 반영 완료 ✨) */}
-          <View
-            style={[
-              styles.cardHeader,
-              photos.length === 0 && { paddingTop: 28 },
-            ]}
-          >
-            <Text style={styles.dateText}>{formattedDate}</Text>
-          </View>
-
-          {/* AI 요약 메시지 */}
-          <View style={styles.summaryWrapper}>
-            <Text style={styles.summaryText}>"{summaryText}"</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          {/* 행복 지수 */}
-          <View style={styles.sectionPadding}>
-            <View style={styles.rowJustify}>
-              <Text style={styles.sectionLabel}>행복 지수</Text>
-              <Text style={styles.scoreText}>{happinessScore}%</Text>
+            {/* AI 요약 메시지 */}
+            <View style={styles.summaryWrapper}>
+              <Text style={styles.summaryText}>"{summaryText}"</Text>
             </View>
-            <View style={styles.progressBarTrack}>
-              <View
-                style={[
-                  styles.progressBarFill,
-                  { width: `${happinessScore}%` },
-                ]}
-              />
-            </View>
-          </View>
 
-          {/* 감정 뱃지 (EMOTION_LIST 상수의 매칭 데이터 연동 완료 ✨) */}
-          <View>
             <View style={styles.divider} />
-            <View style={[styles.rowJustify, styles.sectionPadding]}>
-              <Text style={styles.sectionLabel}>감정</Text>
-              <View style={styles.moodBadge}>
-                <Text style={styles.moodEmoji}>{matchedEmotion.emoji}</Text>
-                <Text style={styles.moodLabel}>{matchedEmotion.label}</Text>
+
+            {/* 행복 지수 */}
+            <View style={styles.sectionPadding}>
+              <View style={styles.rowJustify}>
+                <Text style={styles.sectionLabel}>행복 지수</Text>
+                <Text style={styles.scoreText}>{happinessScore}%</Text>
+              </View>
+              <View style={styles.progressBarTrack}>
+                <View
+                  style={[
+                    styles.progressBarFill,
+                    { width: `${happinessScore}%` },
+                  ]}
+                />
               </View>
             </View>
-          </View>
 
-          <View style={styles.divider} />
-
-          {/* 🌟 오늘 하루 어울리는 노래 컴포넌트 */}
-          <View style={styles.quoteWrapper}>
-            <View style={styles.quoteHeader}>
-              <View style={styles.buttonContentRow}>
-                <Text style={styles.musicEmojiIcon}>🎵</Text>
-                <Text style={styles.quoteLabel}>오늘 하루 어울리는 노래</Text>
+            {/* 감정 뱃지 (EMOTION_LIST 상수의 매칭 데이터 연동 완료 ✨) */}
+            <View>
+              <View style={styles.divider} />
+              <View style={[styles.rowJustify, styles.sectionPadding]}>
+                <Text style={styles.sectionLabel}>감정</Text>
+                <View style={styles.moodBadge}>
+                  <Text style={styles.moodEmoji}>{matchedEmotion.emoji}</Text>
+                  <Text style={styles.moodLabel}>{matchedEmotion.label}</Text>
+                </View>
               </View>
             </View>
-            <Text style={styles.musicTitleText}>{todayMusic}</Text>
-          </View>
+
+            <View style={styles.divider} />
+
+            {/* 🌟 오늘 하루 어울리는 노래 컴포넌트 */}
+            <View style={styles.quoteWrapper}>
+              <View style={styles.quoteHeader}>
+                <View style={styles.buttonContentRow}>
+                  <Text style={styles.musicEmojiIcon}>🎵</Text>
+                  <Text style={styles.quoteLabel}>오늘 하루 어울리는 노래</Text>
+                </View>
+              </View>
+              <Text style={styles.musicTitleText}>{todayMusic}</Text>
+            </View>
+          </ViewShot>
         </View>
 
         {/* 🔘 하단 버튼 영역 */}

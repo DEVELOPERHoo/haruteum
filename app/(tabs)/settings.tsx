@@ -10,6 +10,7 @@ import {
 import { useRouter, usePathname, Stack } from "expo-router";
 
 import AccountSection from "../../components/settings/AccountSection";
+import LegalSection from "../../components/settings/LegalSection";
 
 const { width } = Dimensions.get("window");
 
@@ -19,7 +20,6 @@ export default function SettingsScreen() {
   const horizontalScrollRef = useRef<ScrollView>(null);
   const isNavigating = useRef(false);
 
-  // 1. 화면 진입 시 오른쪽 끝(Settings 실제 위치, x: width)으로 초기 스크롤 세팅
   useEffect(() => {
     if (pathname === "/settings") {
       isNavigating.current = false;
@@ -29,7 +29,6 @@ export default function SettingsScreen() {
     }
   }, [pathname]);
 
-  // 2. 왼쪽으로 스와이프 시 History 화면으로 이동하는 스크롤 감지
   const handleScroll = (e: any) => {
     if (isNavigating.current) return;
     const contentOffsetX = e.nativeEvent.contentOffset.x;
@@ -54,12 +53,11 @@ export default function SettingsScreen() {
         contentContainerStyle={styles.horizontalWrapper}
         keyboardShouldPersistTaps="handled"
       >
-        {/* 1️⃣ 스와이프 버퍼 영역 (History 방향) */}
+        {/* 1️⃣ 스와이프 버퍼 영역 */}
         <View style={styles.pageContainer} />
 
-        {/* 2️⃣ Settings 실제 컨텐츠 영역 (하단 고정 레이아웃 적용) */}
+        {/* 2️⃣ Settings 컨텐츠 영역 */}
         <View style={[styles.pageContainer, styles.settingMainWrapper]}>
-          {/* 상단 및 중앙: 메뉴 스크롤 영역 */}
           <ScrollView
             style={styles.settingScroll}
             contentContainerStyle={styles.settingContent}
@@ -70,13 +68,11 @@ export default function SettingsScreen() {
               <Text style={styles.headerTitle}>설정</Text>
             </View>
 
-            {/* 분리된 메뉴 섹션들 */}
             <AccountSection />
 
-            {/* 추후 추가될 영역 예시 (DisplaySection, HelpSection 등) */}
+            <LegalSection />
           </ScrollView>
 
-          {/* 🌟 3️⃣ 화면 맨 하단에 완전 고정된 버전 텍스트 */}
           <View style={styles.footerWrapper}>
             <Text style={styles.footerNote}>HARUTEUM v1.0.0</Text>
           </View>
@@ -98,7 +94,6 @@ const styles = StyleSheet.create({
     width,
     flex: 1,
   },
-  // 🌟 [핵심] 설정 화면 전체 레이아웃 (스크롤 영역 + 하단 고정 푸터)
   settingMainWrapper: {
     justifyContent: "space-between",
     paddingTop: Platform.OS === "ios" ? 60 : 40,
@@ -112,7 +107,7 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   header: {
-    marginBottom: 28,
+    marginBottom: 20,
   },
   headerSub: {
     fontSize: 12,
@@ -127,7 +122,6 @@ const styles = StyleSheet.create({
     color: "#3E2723",
     letterSpacing: -0.5,
   },
-  // 🌟 [핵심] 푸터 텍스트 전용 고정 스타일
   footerWrapper: {
     paddingVertical: 12,
     alignItems: "center",
