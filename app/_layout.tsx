@@ -24,6 +24,7 @@ export default function RootLayout() {
           },
         }}
       />
+      <Stack.Screen name="memory" options={{ headerShown: false }} />
     </Stack>
   );
 }

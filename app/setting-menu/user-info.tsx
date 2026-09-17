@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import { apiRequest } from "../../services/apiClient";
+import { apiRequest, parseResponse } from "../../services/apiClient";
 
 interface UserInfo {
   nickname: string;
@@ -33,11 +33,14 @@ export default function UserInfoScreen() {
   const fetchUserInfo = async () => {
     try {
       const res = await apiRequest("/api/v1/user/me", { method: "GET" });
-      const data = await res.json();
+      const data = await parseResponse(res);
       setUserInfo(data);
       setEditedName(data.nickname);
     } catch (error) {
-      console.log("사용자 정보 조회 에러:", error);
+      console.log(`[fetchUserInfo] ${error.message}`);
+      if (error.message.includes("로그인이 필요")) {
+        router.replace("/login");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -56,17 +59,14 @@ export default function UserInfoScreen() {
         method: "PUT",
         body: JSON.stringify({ nickname: editedName }),
       });
-
-      console.log("status:", res.status); // ← 응답 코드 확인
-      const text = await res.text();
-      console.log("응답:", text); // ← 응답 내용 확인
-
-      if (!res.ok) throw new Error("수정 실패");
+      await parseResponse(res);
       setUserInfo((prev) => (prev ? { ...prev, nickname: editedName } : prev));
       setIsEditing(false);
     } catch (error) {
-      console.log("수정 에러:", error); // ← 에러 확인
-      Alert.alert("오류", "수정 중 문제가 발생했습니다.");
+      console.log(`[handleSave] ${error.message}`);
+      if (error.message.includes("로그인이 필요")) {
+        router.replace("/login");
+      }
     }
   };
 

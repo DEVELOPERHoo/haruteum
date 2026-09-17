@@ -43,32 +43,27 @@ export default function SubmitButton() {
         files: photoUris,
         mode: mode,
       });
-      console.log("🚀 백엔드 응답 수신 완료:", result);
 
       // 🌟 [핵심 추가] 통신은 성공했으나 응답 본문이 빈 값(null, undefined, 또는 빈 객체)인지 검사
       // 백엔드가 필수적으로 줘야 하는 'summary' 같은 키값이 없거나 객체가 비어있다면 가로막습니다.
       if (!result || Object.keys(result).length === 0 || !result.summary) {
         throw new Error("SERVER_EMPTY_DATA"); // 에러를 강제로 발생시켜 catch문으로 토스!
       }
-      // 2. 데이터 유효성 검사까지 통과했으므로 안심하고 스토어 주입 및 화면 이동!
       useDiaryStore.getState().setResultData(result);
       setIsHistoryStale(true); // 히스토리 갱신 필요 표시
       router.push("/diary-result");
     } catch (error: any) {
-      if (error.message === "SERVER_EMPTY_DATA") {
+      const message = error.message ?? "";
+      if (message === "SERVER_EMPTY_DATA") {
         Alert.alert(
           "분석 오류 😢",
           "서버에서 분석 데이터를 안정적으로 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
           [{ text: "확인" }],
         );
-      } else if (error.message === "로그인 필요") {
+      } else if (message.includes("로그인이 필요")) {
         router.push("/login");
       } else {
-        Alert.alert(
-          "기록 저장 실패 😢",
-          "서버와 연결이 원활하지 않습니다. 네트워크 상태를 확인해 주세요.",
-          [{ text: "확인" }],
-        );
+        Alert.alert("기록 저장 실패 😢", message, [{ text: "확인" }]);
       }
     } finally {
       setIsGenerating(false);

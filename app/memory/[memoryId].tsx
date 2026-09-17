@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
-import { apiRequest } from "../../services/apiClient";
+import { apiRequest, parseResponse } from "../../services/apiClient";
 import { getFormattedDate } from "../../utils/dateFormat";
 import { getEmotionEmoji } from "../../constants/emotions";
 
@@ -33,11 +33,11 @@ export default function MemoryDetailScreen() {
   const fetchMemoryDetail = async () => {
     try {
       const res = await apiRequest(`/api/v1/memory/${memoryId}`);
-      const json = await res.json();
+      const json = await parseResponse(res);
       setData(json);
     } catch (error) {
-      console.log("상세 조회 에러:", error);
-      if (error.message === "로그인 필요") {
+      console.log(`[fetchMemoryDetail] ${error.message}`);
+      if (error.message.includes("로그인이 필요")) {
         router.replace("/login");
       }
     } finally {

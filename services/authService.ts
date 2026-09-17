@@ -1,6 +1,6 @@
 // services/authService.ts
 import * as SecureStore from "expo-secure-store";
-import { apiRequest } from "./apiClient";
+import { apiRequest, parseResponse } from "./apiClient";
 import { BASE_URL } from "../constants/config";
 
 interface KakaoLoginResponse {
@@ -53,12 +53,12 @@ export const restoreAccount = async (accessToken: string) => {
 
 // 회원 탈퇴
 export const deleteAccount = async () => {
-  const res = await apiRequest("/api/v1/auth/me", {
-    method: "DELETE",
-  });
-
-  if (!res.ok) throw new Error("탈퇴 실패");
-
-  await SecureStore.deleteItemAsync("accessToken");
-  await SecureStore.deleteItemAsync("refreshToken");
+  try {
+    const res = await apiRequest("/api/v1/auth/me", {
+      method: "DELETE",
+    });
+    return parseResponse(res);
+  } catch (error: any) {
+    throw new Error(`[deleteAccount] ${error.message}`);
+  }
 };

@@ -92,7 +92,7 @@ export default function HistoryScreen() {
       setHistoryHasNext(json.hasNext);
     } catch (error: any) {
       console.log("에러 발생", error);
-      if (error.message === "로그인 필요") {
+      if (error.message.includes("로그인이 필요")) {
         router.replace("/login");
       }
     } finally {
