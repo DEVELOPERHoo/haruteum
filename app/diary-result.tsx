@@ -85,8 +85,6 @@ export default function DiaryResultScreen() {
 
   return (
     <View style={styles.mainContainer}>
-      <Stack.Screen options={{ headerShown: false }} />
-
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.scrollContent}

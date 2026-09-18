@@ -1,5 +1,5 @@
 // app/login.tsx
-import React from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Alert,
   Platform,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter, Stack } from "expo-router";
 import { login } from "@react-native-seoul/kakao-login";
@@ -19,8 +20,10 @@ import {
 
 export default function LoginScreen() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleKakaoLogin = async () => {
+    setIsLoading(true);
     try {
       console.log("카카오 로그인 프로세스 시작...");
       const tokenResult = await login();
@@ -76,12 +79,13 @@ export default function LoginScreen() {
           `로그인 처리 중 문제가 발생했습니다.\n(${error?.message || "알 수 없는 에러"})`,
         );
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
       {/* 뒤로가기 헤더 */}
       <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
         <ArrowLeft size={20} color="#3E2723" />
@@ -104,9 +108,16 @@ export default function LoginScreen() {
         style={styles.kakaoButton}
         activeOpacity={0.8}
         onPress={handleKakaoLogin}
+        disabled={isLoading}
       >
-        <Text style={styles.kakaoIcon}>💬</Text>
-        <Text style={styles.kakaoButtonText}>카카오 3초 간편 로그인</Text>
+        {isLoading ? (
+          <ActivityIndicator size="small" color="#191919" />
+        ) : (
+          <>
+            <Text style={styles.kakaoIcon}>💬</Text>
+            <Text style={styles.kakaoButtonText}>카카오 3초 간편 로그인</Text>
+          </>
+        )}
       </TouchableOpacity>
     </View>
   );

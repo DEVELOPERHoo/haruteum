@@ -3,8 +3,14 @@ import { Stack } from "expo-router";
 
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
+    <Stack
+      screenOptions={{
+        headerShown: false,
+        animation: "slide_from_right",
+        animationDuration: 150,
+      }}
+    >
+      <Stack.Screen name="index" />
       <Stack.Screen
         name="(tabs)"
         options={{
@@ -24,7 +30,6 @@ export default function RootLayout() {
           },
         }}
       />
-      <Stack.Screen name="memory" options={{ headerShown: false }} />
     </Stack>
   );
 }

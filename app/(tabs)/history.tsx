@@ -129,7 +129,7 @@ export default function HistoryScreen() {
     if (isSelectionMode) {
       toggleSelect(memoryId);
     } else {
-      router.push(`/memory/${memoryId}`);
+      router.push(`/memory/${memoryId}`); // 히스토리 -> 상세
     }
   };
 

@@ -41,8 +41,6 @@ export default function SettingsScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ headerShown: false }} />
-
       <ScrollView
         ref={horizontalScrollRef}
         horizontal

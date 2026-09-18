@@ -30,8 +30,11 @@ export const loginWithKakao = async (
 
 // 토큰 저장(정상 로그인 또는 복귀 후)
 export const saveTokens = async (accessToken: string, refreshToken: string) => {
-  await SecureStore.setItemAsync("accessToken", String(accessToken));
-  await SecureStore.setItemAsync("refreshToken", String(refreshToken));
+  // 시간 단축을 위한 병렬처리
+  await Promise.all([
+    await SecureStore.setItemAsync("accessToken", String(accessToken)),
+    await SecureStore.setItemAsync("refreshToken", String(refreshToken)),
+  ]);
 };
 
 // 회원 복귀

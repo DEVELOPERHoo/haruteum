@@ -7,10 +7,9 @@ import {
   ActivityIndicator,
   Platform,
   TextInput,
-  Alert,
   KeyboardAvoidingView,
 } from "react-native";
-import { useRouter, Stack } from "expo-router";
+import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { apiRequest, parseResponse } from "../../services/apiClient";
 
@@ -81,8 +80,6 @@ export default function UserInfoScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <Stack.Screen options={{ headerShown: false }} />
-
       {/* 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity

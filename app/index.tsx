@@ -23,7 +23,6 @@ export default function SplashScreen() {
 
     // 로그인 체크 없이 2.5초 후 바로 홈으로
     const timer = setTimeout(() => {
-      //router.replace("/home");
       checkLoginStatus();
     }, 1000);
 

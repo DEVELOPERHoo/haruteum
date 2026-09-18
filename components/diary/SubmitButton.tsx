@@ -51,7 +51,7 @@ export default function SubmitButton() {
       }
       useDiaryStore.getState().setResultData(result);
       setIsHistoryStale(true); // 히스토리 갱신 필요 표시
-      router.push("/diary-result");
+      router.push("/diary-result"); // 다이어리 -> 결과
     } catch (error: any) {
       const message = error.message ?? "";
       if (message === "SERVER_EMPTY_DATA") {
@@ -61,7 +61,7 @@ export default function SubmitButton() {
           [{ text: "확인" }],
         );
       } else if (message.includes("로그인이 필요")) {
-        router.push("/login");
+        router.replace("/login");
       } else {
         Alert.alert("기록 저장 실패 😢", message, [{ text: "확인" }]);
       }

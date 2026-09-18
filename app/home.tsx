@@ -30,8 +30,6 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.mainContainer}>
-      <Stack.Screen options={{ headerShown: false }} />
-
       <View style={styles.innerContainer}>
         <View style={styles.header}>
           <Text style={styles.dateText}>

@@ -80,9 +80,6 @@ export default function AccountDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* 상단 기본 헤더 숨김 */}
-      <Stack.Screen options={{ headerShown: false }} />
-
       {/* 뒤로가기 헤더 */}
       <View style={styles.header}>
         <TouchableOpacity

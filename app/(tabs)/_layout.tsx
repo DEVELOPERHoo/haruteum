@@ -6,7 +6,7 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false, // 👈 헤더는 app/_layout.tsx에서 관리하므로 꺼줍니다.
+        headerShown: false,
         tabBarActiveTintColor: "#D4A59A",
         tabBarInactiveTintColor: "#CCCCCC",
         tabBarShowLabel: false, // 아이콘만 깔끔하게 표시
