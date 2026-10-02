@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useDiaryStore } from "../../store/diaryStore";
+import { scale } from "../../utils/responsive";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 48;
@@ -213,7 +214,7 @@ const styles = StyleSheet.create({
     bottom: 16,
     left: 16,
     backgroundColor: "rgba(0,0,0,0.3)",
-    paddingHorizontal: 10,
+    paddingHorizontal: scale(10),
     paddingVertical: 4,
     borderRadius: 12,
   },

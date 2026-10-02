@@ -9,6 +9,7 @@ import {
 import { useRouter, Stack } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useDiaryStore } from "../store/diaryStore";
+import { fontScale, scale } from "../utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -99,7 +100,7 @@ const styles = StyleSheet.create({
   innerContainer: {
     width: width > 430 ? 430 : "100%",
     flex: 1,
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     paddingTop: 60,
     paddingBottom: 40,
     flexDirection: "column",
@@ -109,21 +110,21 @@ const styles = StyleSheet.create({
     marginBottom: 48,
   },
   dateText: {
-    fontSize: 10,
+    fontSize: fontScale(10),
     color: "rgba(136, 136, 136, 0.4)",
     letterSpacing: 4,
     marginBottom: 16,
     fontWeight: "500",
   },
   mainTitle: {
-    fontSize: 28,
+    fontSize: fontScale(28),
     fontWeight: "600",
     color: "#3E2723",
     letterSpacing: 1,
     marginBottom: 6,
   },
   subTitle: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "rgba(136, 136, 136, 0.6)",
     letterSpacing: 1,
   },
@@ -161,13 +162,13 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontWeight: "600",
     color: "#3E2723",
     marginBottom: 4,
   },
   cardDescription: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     color: "rgba(136, 136, 136, 0.5)",
     letterSpacing: -0.2,
   },
@@ -175,14 +176,14 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 12,
     right: 16,
-    fontSize: 9,
+    fontSize: fontScale(9),
     color: "rgba(136, 136, 136, 0.2)",
     letterSpacing: 2,
     fontWeight: "600",
   },
   footerText: {
     textAlign: "center",
-    fontSize: 9,
+    fontSize: fontScale(9),
     color: "rgba(136, 136, 136, 0.25)",
     letterSpacing: 4,
   },

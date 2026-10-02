@@ -15,6 +15,7 @@ import { ArrowLeft } from "lucide-react-native";
 import { apiRequest, parseResponse } from "../../services/apiClient";
 import { getFormattedDate } from "../../utils/dateFormat";
 import { getEmotionEmoji } from "../../constants/emotions";
+import { scale } from "../../utils/responsive";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -184,7 +185,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#FAF7F5",
   },
   scrollContainer: { flex: 1 },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 },
+  scrollContent: {
+    paddingHorizontal: scale(20),
+    paddingTop: 16,
+    paddingBottom: 40,
+  },
   backButton: { marginBottom: 16, alignSelf: "flex-start", paddingVertical: 4 },
   backButtonText: {
     fontSize: 14,
@@ -214,7 +219,7 @@ const styles = StyleSheet.create({
     top: 12,
     right: 12,
     backgroundColor: "rgba(0,0,0,0.4)",
-    paddingHorizontal: 8,
+    paddingHorizontal: scale(8),
     paddingVertical: 4,
     borderRadius: 10,
   },
@@ -227,7 +232,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   summaryWrapper: {
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     paddingBottom: 20,
     alignItems: "center",
   },
@@ -243,7 +248,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  sectionPadding: { paddingHorizontal: 24, paddingVertical: 18 },
+  sectionPadding: { paddingHorizontal: scale(24), paddingVertical: 18 },
   sectionLabel: {
     fontSize: 13,
     color: "rgba(136,136,136,0.7)",
@@ -266,7 +271,7 @@ const styles = StyleSheet.create({
   moodEmoji: { fontSize: 22 },
   moodLabel: { fontSize: 15, color: "#3E2723", fontWeight: "500" },
   quoteWrapper: {
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     paddingVertical: 26,
     alignItems: "center",
   },

@@ -19,6 +19,7 @@ import { fetchHistory, deleteMemories } from "../../services/historyService";
 import { getEmotionEmoji } from "../../constants/emotions";
 import { BASE_URL } from "../../constants/config";
 import { formatDate, groupingMonth } from "../../utils/dateFormat";
+import { scale } from "../../utils/responsive";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = (width - 32 - 8) / 3;
@@ -414,7 +415,7 @@ const styles = StyleSheet.create({
   baseContainer: { flex: 1, backgroundColor: "#FAF7F5" },
   horizontalWrapper: { width: width * 3 },
   pageContainer: { width, flex: 1 },
-  header: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 12 },
+  header: { paddingHorizontal: scale(20), paddingTop: 24, paddingBottom: 12 },
   headerSub: {
     fontSize: 11,
     color: "#BCAAA4",
@@ -436,7 +437,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
     paddingTop: 24,
     paddingBottom: 16,
   },
@@ -450,7 +451,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 4,
     paddingVertical: 6,
-    paddingHorizontal: 8,
+    paddingHorizontal: scale(8),
   },
   headerBtnText: {
     fontSize: 14,
@@ -463,12 +464,12 @@ const styles = StyleSheet.create({
   filterRow: {
     flexDirection: "row",
     gap: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: scale(16),
     paddingBottom: 16,
   },
   filterBtn: {
     paddingVertical: 5,
-    paddingHorizontal: 14,
+    paddingHorizontal: scale(14),
     borderRadius: 20,
     backgroundColor: "#F2EAE7",
   },
@@ -484,7 +485,7 @@ const styles = StyleSheet.create({
   },
   dividerLine: { flex: 1, height: 1, backgroundColor: "#EDE5E2" },
   monthText: { fontSize: 10, color: "#BCAAA4", letterSpacing: 1 },
-  gridContainer: { paddingHorizontal: 16 },
+  gridContainer: { paddingHorizontal: scale(16) },
   gridRow: { flexDirection: "row", gap: 4, marginBottom: 4 },
   card: {
     width: CARD_WIDTH,
@@ -540,7 +541,7 @@ const styles = StyleSheet.create({
     fontSize: 8,
     color: "#FFFFFF",
     backgroundColor: "rgba(0,0,0,0.35)",
-    paddingHorizontal: 5,
+    paddingHorizontal: scale(5),
     paddingVertical: 2,
     borderRadius: 6,
     overflow: "hidden",

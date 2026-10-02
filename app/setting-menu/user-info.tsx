@@ -12,6 +12,7 @@ import {
 import { useRouter } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
 import { apiRequest, parseResponse } from "../../services/apiClient";
+import { scale } from "../../utils/responsive";
 
 interface UserInfo {
   nickname: string;
@@ -154,7 +155,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FAF7F5",
-    paddingHorizontal: 20,
+    paddingHorizontal: scale(20),
   },
   header: {
     flexDirection: "row",
@@ -179,7 +180,7 @@ const styles = StyleSheet.create({
   },
   cancelBtn: {
     paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingHorizontal: scale(14),
     borderRadius: 20,
     backgroundColor: "#F2EAE7",
   },
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
   },
   saveBtn: {
     paddingVertical: 6,
-    paddingHorizontal: 14,
+    paddingHorizontal: scale(14),
     borderRadius: 20,
     backgroundColor: "#3E2723",
   },
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: scale(16),
     shadowColor: "#3E2723",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,

@@ -9,24 +9,51 @@ import {
   Platform,
   ActivityIndicator,
 } from "react-native";
-import { useRouter, Stack } from "expo-router";
-import { login } from "@react-native-seoul/kakao-login";
+import { useRouter } from "expo-router";
+import { login, loginWithKakaoAccount } from "@react-native-seoul/kakao-login";
 import { ArrowLeft } from "lucide-react-native";
 import {
   loginWithKakao,
   saveTokens,
   restoreAccount,
 } from "../services/authService";
+import { fontScale, scale } from "../utils/responsive";
 
 export default function LoginScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  // 카카오 로그인 SDK 호출 (타임아웃 및 풀백 적용)
+  const getKakaoTokenSafely = async () => {
+    // 10초 타임아웃 프로미스 생성(시간 초과로 인한 실패만 다루기에 reject만 사용)
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error("카카오 로그인 응답 시간이 초과되었습니다.")),
+        10000,
+      ),
+    );
+
+    const kakaoLoginPromise = async () => {
+      try {
+        return await login();
+      } catch (err: any) {
+        console.log(
+          "기본 login() 실패, 계정 재인증(loginWithKakaoAccount) 시도:",
+          err?.message,
+        );
+        // 실패 시 카카오 계정 직접 로그인 함수로 2차 시도
+        return await loginWithKakaoAccount();
+      }
+    };
+    // 타임아웃과 로그인 처리 중 먼저 완료되는 것을 실행
+    return (await Promise.race([kakaoLoginPromise(), timeoutPromise])) as any;
+  };
 
   const handleKakaoLogin = async () => {
     setIsLoading(true);
     try {
       console.log("카카오 로그인 프로세스 시작...");
-      const tokenResult = await login();
+      //const tokenResult = await login();
+      const tokenResult = await getKakaoTokenSafely();
 
       console.log("카카오토큰 획득:", tokenResult.accessToken);
       const data = await loginWithKakao(tokenResult.accessToken);
@@ -127,7 +154,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FAF7F5",
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     justifyContent: "space-between",
     paddingBottom: Platform.OS === "ios" ? 40 : 24,
   },
@@ -144,7 +171,7 @@ const styles = StyleSheet.create({
   },
   emoji: { fontSize: 44, marginBottom: 16 },
   mainTitle: {
-    fontSize: 24,
+    fontSize: fontScale(24),
     fontWeight: "700",
     color: "#3E2723",
     textAlign: "center",
@@ -152,7 +179,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.5,
   },
   subTitle: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "rgba(62, 39, 35, 0.6)",
     textAlign: "center",
     lineHeight: 22,
@@ -174,6 +201,10 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  kakaoIcon: { fontSize: 18 },
-  kakaoButtonText: { fontSize: 16, color: "#191919", fontWeight: "600" },
+  kakaoIcon: { fontSize: fontScale(18) },
+  kakaoButtonText: {
+    fontSize: fontScale(16),
+    color: "#191919",
+    fontWeight: "600",
+  },
 });

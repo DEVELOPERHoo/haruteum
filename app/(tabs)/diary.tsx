@@ -15,6 +15,7 @@ import PhotoCard from "../../components/diary/PhotoCard";
 import TextInput from "../../components/diary/TextInput";
 import EmojiPicker from "../../components/diary/EmojiPicker";
 import SubmitButton from "../../components/diary/SubmitButton";
+import { scale } from "../../utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   horizontalWrapper: { width: width * 2 },
   pageContainer: { width, flex: 1 },
   scrollContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     alignItems: "center",
     paddingBottom: 40,
   },

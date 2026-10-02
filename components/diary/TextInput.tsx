@@ -2,6 +2,7 @@
 import React, { useRef } from "react";
 import { StyleSheet, TextInput as RNTextInput, View, Text } from "react-native";
 import { useDiaryStore } from "../../store/diaryStore";
+import { scale } from "../../utils/responsive";
 
 interface Props {
   onFocused: (y: number) => void; // ← 부모에게 위치 전달
@@ -60,7 +61,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginTop: 6,
-    paddingHorizontal: 4,
+    paddingHorizontal: scale(4),
   },
   tipText: { fontSize: 12, color: "#A2948F", fontWeight: "500" },
   counter: { fontSize: 12, color: "#AAA", fontWeight: "400" },

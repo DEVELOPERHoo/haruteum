@@ -11,6 +11,7 @@ import { useRouter, usePathname, Stack } from "expo-router";
 
 import AccountSection from "../../components/settings/AccountSection";
 import LegalSection from "../../components/settings/LegalSection";
+import { scale } from "../../utils/responsive";
 
 const { width } = Dimensions.get("window");
 
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingContent: {
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     paddingBottom: 20,
   },
   header: {

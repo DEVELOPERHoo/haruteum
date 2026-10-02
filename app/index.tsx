@@ -9,6 +9,7 @@ import {
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { checkAuth, refreshAccessToken } from "../services/apiClient";
+import { fontScale } from "../utils/responsive";
 
 export default function SplashScreen() {
   const router = useRouter();
@@ -88,14 +89,14 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   subTitle: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     fontWeight: "400",
     color: "#BCAAA4",
     letterSpacing: 2,
     marginBottom: 8,
   },
   mainTitle: {
-    fontSize: 32,
+    fontSize: fontScale(32),
     fontWeight: "700",
     color: "#3E2723",
     letterSpacing: 4,

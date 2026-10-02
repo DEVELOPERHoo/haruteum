@@ -21,6 +21,7 @@ import { getFormattedDate } from "../utils/dateFormat";
 import { useDiaryStore } from "../store/diaryStore";
 import { getEmotionEmoji } from "../constants/emotions";
 import { BASE_URL } from "../constants/config";
+import { fontScale, scale } from "../utils/responsive";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width - 40;
@@ -253,10 +254,14 @@ export default function DiaryResultScreen() {
 const styles = StyleSheet.create({
   mainContainer: { flex: 1, backgroundColor: "#FAF7F5" },
   scrollContainer: { flex: 1 },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 16, paddingBottom: 40 },
+  scrollContent: {
+    paddingHorizontal: scale(20),
+    paddingTop: 16,
+    paddingBottom: 40,
+  },
   backButton: { marginBottom: 16, alignSelf: "flex-start", paddingVertical: 4 },
   backButtonText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "rgba(136, 136, 136, 0.6)",
     letterSpacing: -0.3,
   },
@@ -282,34 +287,38 @@ const styles = StyleSheet.create({
     top: 12,
     right: 12,
     backgroundColor: "rgba(0,0,0,0.4)",
-    paddingHorizontal: 8,
+    paddingHorizontal: scale(8),
     paddingVertical: 4,
     borderRadius: 10,
   },
-  photoCountText: { color: "#FFFFFF", fontSize: 10, fontWeight: "600" },
+  photoCountText: {
+    color: "#FFFFFF",
+    fontSize: fontScale(10),
+    fontWeight: "600",
+  },
   imageTagText: {
     position: "absolute",
     bottom: 12,
     right: 16,
-    fontSize: 10,
+    fontSize: fontScale(10),
     color: "#FFFFFF",
     letterSpacing: 2,
     fontWeight: "600",
   },
   cardHeader: { paddingTop: 24, paddingBottom: 16, alignItems: "center" },
   dateText: {
-    fontSize: 18,
+    fontSize: fontScale(18),
     fontWeight: "600",
     color: "#3E2723",
     letterSpacing: -0.3,
   },
   summaryWrapper: {
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     paddingBottom: 20,
     alignItems: "center",
   },
   summaryText: {
-    fontSize: 17,
+    fontSize: fontScale(17),
     lineHeight: 28,
     color: "#4E342E",
     textAlign: "center",
@@ -320,13 +329,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  sectionPadding: { paddingHorizontal: 24, paddingVertical: 18 },
+  sectionPadding: { paddingHorizontal: scale(24), paddingVertical: 18 },
   sectionLabel: {
-    fontSize: 13,
+    fontSize: fontScale(13),
     color: "rgba(136, 136, 136, 0.7)",
     letterSpacing: 0.5,
   },
-  scoreText: { fontSize: 18, fontWeight: "700", color: "#D4A59A" },
+  scoreText: { fontSize: fontScale(18), fontWeight: "700", color: "#D4A59A" },
   progressBarTrack: {
     height: 10,
     backgroundColor: "#F5ECE9",
@@ -340,27 +349,27 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   moodBadge: { flexDirection: "row", alignItems: "center", gap: 6 },
-  moodEmoji: { fontSize: 22 },
-  moodLabel: { fontSize: 15, color: "#3E2723", fontWeight: "500" },
+  moodEmoji: { fontSize: fontScale(22) },
+  moodLabel: { fontSize: fontScale(15), color: "#3E2723", fontWeight: "500" },
   quoteWrapper: {
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     paddingVertical: 26,
     alignItems: "center",
   },
   quoteHeader: { marginBottom: 12 },
   quoteLabel: {
-    fontSize: 11,
+    fontSize: fontScale(11),
     color: "rgba(136, 136, 136, 0.6)",
     letterSpacing: 2,
     fontWeight: "600",
   },
   musicEmojiIcon: {
-    fontSize: 12,
+    fontSize: fontScale(12),
     color: "#D4A59A",
     marginTop: Platform.OS === "ios" ? -2 : 0,
   },
   musicTitleText: {
-    fontSize: 15,
+    fontSize: fontScale(15),
     fontWeight: "500",
     color: "#3E2723",
     lineHeight: 24,
@@ -390,7 +399,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   actionMainButtonText: {
-    fontSize: 15,
+    fontSize: fontScale(15),
     color: "#FFFFFF",
     fontWeight: "600",
     letterSpacing: -0.3,
@@ -408,7 +417,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionSubButtonText: {
-    fontSize: 15,
+    fontSize: fontScale(15),
     color: "#3E2723",
     fontWeight: "500",
     letterSpacing: -0.3,
@@ -424,7 +433,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   actionShareButtonText: {
-    fontSize: 14,
+    fontSize: fontScale(14),
     color: "#D4A59A",
     fontWeight: "600",
     letterSpacing: -0.3,

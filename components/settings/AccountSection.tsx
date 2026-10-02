@@ -3,6 +3,7 @@ import React from "react";
 import { StyleSheet, Text, View, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import { ChevronRight, User, Settings } from "lucide-react-native";
+import { scale } from "../../utils/responsive";
 
 export default function AccountSection() {
   const router = useRouter();
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
   menuCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: scale(16),
     shadowColor: "#3E2723",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,

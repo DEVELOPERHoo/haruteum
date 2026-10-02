@@ -2,6 +2,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { getFormattedDate } from "../../utils/dateFormat";
+import { scale } from "../../utils/responsive";
 
 export default function DateHeader() {
   return (
@@ -18,7 +19,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-start", // 👈 중앙 정렬에서 힙한 '왼쪽 정렬'로 변경!
     marginTop: 32,
     marginBottom: 16,
-    paddingHorizontal: 4, // 양옆 여백과 라인을 맞추기 위한 미세 정렬
+    paddingHorizontal: scale(4), // 양옆 여백과 라인을 맞추기 위한 미세 정렬
   },
   dateText: {
     fontSize: 13,

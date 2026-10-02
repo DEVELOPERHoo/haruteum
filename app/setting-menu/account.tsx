@@ -13,6 +13,7 @@ import { ArrowLeft, LogOut, UserX, ChevronRight } from "lucide-react-native";
 import { logout } from "@react-native-seoul/kakao-login";
 import * as SecureStore from "expo-secure-store";
 import { deleteAccount } from "../../services/authService";
+import { scale } from "../../utils/responsive";
 
 export default function AccountDetailScreen() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function AccountDetailScreen() {
           } catch (error: any) {
             // 🌟 핵심 방어 코드: 토큰이 없다는 에러가 나도 이미 로그아웃된 상태이므로 정상 진행합니다.
             console.log(
-              "ℹ️ 카카오 토큰이 없거나 이미 만료됨 (정상적으로 로컬 정리 진행):",
+              "카카오 토큰이 없거나 이미 만료됨 (정상적으로 로컬 정리 진행):",
               error?.message || error,
             );
           } finally {
@@ -144,7 +145,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#FAF7F5",
-    paddingHorizontal: 24,
+    paddingHorizontal: scale(24),
     paddingTop: Platform.OS === "ios" ? 60 : 20,
   },
   header: {
@@ -164,7 +165,7 @@ const styles = StyleSheet.create({
   menuCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 20,
-    paddingHorizontal: 16,
+    paddingHorizontal: scale(16),
     shadowColor: "#3E2723",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.03,
