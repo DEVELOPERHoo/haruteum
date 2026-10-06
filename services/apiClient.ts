@@ -1,10 +1,12 @@
 // services/apiClient.ts
-import * as SecureStore from "expo-secure-store";
 import { BASE_URL } from "../constants/config";
+import { clearTokens, getAccessToken, saveTokens } from "./authService";
 
 // accessToken 갱신
 export const refreshAccessToken = async () => {
-  const refreshToken = await SecureStore.getItemAsync("refreshToken");
+  const refreshToken = await getAccessToken();
+
+  if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
 
   const response = await fetch(`${BASE_URL}/api/v1/auth/reissue`, {
     method: "GET",
@@ -16,25 +18,27 @@ export const refreshAccessToken = async () => {
   if (!response.ok) throw new Error("refresh 실패");
 
   const data = await response.json();
-  await SecureStore.setItemAsync("accessToken", data.accessToken);
-  await SecureStore.setItemAsync("refreshToken", data.refreshToken);
+
+  await saveTokens(data.accessToken, data.refreshToken);
 
   return data.accessToken;
 };
 // 토큰 유효성 검사
 export const checkAuth = async (): Promise<boolean> => {
-  const accessToken = await SecureStore.getItemAsync("accessToken");
+  const accessToken = await getAccessToken();
 
   if (!accessToken) return false;
-
-  const response = await fetch(`${BASE_URL}/api/v1/auth/check`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-
-  return response.ok;
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/auth/check`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.ok;
+  } catch (error) {
+    return false;
+  }
 };
 
 // 모든 API 요청은 이 함수로(다이어리 저장, 히스토리 조회, 프로필 조회)
@@ -43,11 +47,13 @@ export const apiRequest = async (
   options: RequestInit = {},
   isFormData = false,
 ) => {
-  const accessToken = await SecureStore.getItemAsync("accessToken");
+  const accessToken = await getAccessToken();
 
   // FormData일 때는 Content-Type 완전히 제외
   const headers = new Headers();
-  headers.append("Authorization", `Bearer ${accessToken}`);
+  if (accessToken) {
+    headers.append("Authorization", `Bearer ${accessToken}`);
+  }
 
   if (!isFormData) {
     headers.append("Content-Type", "application/json");
@@ -61,7 +67,7 @@ export const apiRequest = async (
     });
   }
 
-  const response = await fetch(`${BASE_URL}${url}`, {
+  let response = await fetch(`${BASE_URL}${url}`, {
     ...options,
     headers,
   });
@@ -70,13 +76,12 @@ export const apiRequest = async (
     try {
       const newAccessToken = await refreshAccessToken();
       headers.set("Authorization", `Bearer ${newAccessToken}`);
-      return fetch(`${BASE_URL}${url}`, {
+      response = await fetch(`${BASE_URL}${url}`, {
         ...options,
         headers,
       });
     } catch {
-      await SecureStore.deleteItemAsync("accessToken");
-      await SecureStore.deleteItemAsync("refreshToken");
+      await clearTokens();
       throw new Error("로그인이 필요합니다.");
     }
   }

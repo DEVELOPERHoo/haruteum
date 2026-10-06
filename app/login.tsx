@@ -23,40 +23,34 @@ export default function LoginScreen() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   // 카카오 로그인 SDK 호출 (타임아웃 및 풀백 적용)
-  const getKakaoTokenSafely = async () => {
+  const getKakaoToken = async () => {
     // 10초 타임아웃 프로미스 생성(시간 초과로 인한 실패만 다루기에 reject만 사용)
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(
         () => reject(new Error("카카오 로그인 응답 시간이 초과되었습니다.")),
-        10000,
+        7000,
       ),
     );
 
-    const kakaoLoginPromise = async () => {
-      try {
-        return await login();
-      } catch (err: any) {
-        console.log(
-          "기본 login() 실패, 계정 재인증(loginWithKakaoAccount) 시도:",
-          err?.message,
-        );
-        // 실패 시 카카오 계정 직접 로그인 함수로 2차 시도
-        return await loginWithKakaoAccount();
-      }
-    };
     // 타임아웃과 로그인 처리 중 먼저 완료되는 것을 실행
-    return (await Promise.race([kakaoLoginPromise(), timeoutPromise])) as any;
+    return (await Promise.race([login(), timeoutPromise])) as any;
   };
 
   const handleKakaoLogin = async () => {
     setIsLoading(true);
+    const startTime = Date.now();
     try {
       console.log("카카오 로그인 프로세스 시작...");
       //const tokenResult = await login();
-      const tokenResult = await getKakaoTokenSafely();
+      const tokenResult = await getKakaoToken();
 
-      console.log("카카오토큰 획득:", tokenResult.accessToken);
+      console.log(
+        `카카오 토큰 획득 완료 (${Date.now() - startTime}ms):`,
+        tokenResult.accessToken,
+      );
+      const apiStartTime = Date.now();
       const data = await loginWithKakao(tokenResult.accessToken);
+      console.log(`백엔드 로그인 완료 (${Date.now() - apiStartTime}ms)`);
 
       // 탈퇴 회원 → 복귀 의사 확인
       if (data.withdraw) {
@@ -89,13 +83,19 @@ export default function LoginScreen() {
         );
         return; // 탈퇴 회원이면 여기서 종료
       }
+      const saveStartTime = Date.now();
       await saveTokens(data.accessToken, data.refreshToken);
+      console.log(`로컬 토큰 저장 완료 (${Date.now() - saveStartTime}ms)`);
+
       router.replace("/home");
     } catch (error: any) {
       // 🌟 디버깅을 위해 상세 에러 로그를 터미널에 출력합니다.
       console.error("❌ 카카오 로그인 에러 상세:", error);
 
-      if (error.code === "E_CANCELLED_OPERATION") {
+      if (
+        error?.code === "E_CANCELLED_OPERATION" ||
+        error?.message?.includes("cancelled")
+      ) {
         Alert.alert(
           "로그인 취소",
           "서비스를 이용하시려면 로그인이 필요합니다. ☺️",

@@ -8,50 +8,53 @@ import {
   Platform,
   Alert,
 } from "react-native";
-import { useRouter, Stack } from "expo-router";
+import { useRouter } from "expo-router";
+import { useAlertStore } from "../../store/useAlertStore";
 import { ArrowLeft, LogOut, UserX, ChevronRight } from "lucide-react-native";
-import { logout } from "@react-native-seoul/kakao-login";
-import * as SecureStore from "expo-secure-store";
-import { deleteAccount } from "../../services/authService";
+import { logoutUser, deleteAccount } from "../../services/authService";
 import { scale } from "../../utils/responsive";
 
 export default function AccountDetailScreen() {
   const router = useRouter();
+  const { showAlert } = useAlertStore();
 
-  // 🚪 방어 로직이 적용된 안전한 로그아웃 처리 함수
+  // 방어 로직이 적용된 안전한 로그아웃 처리 함수
   const handleLogout = () => {
-    Alert.alert("로그아웃", "정말 로그아웃 하시겠어요?", [
+    showAlert("로그아웃", "정말 로그아웃 하시겠어요?", [
       { text: "취소", style: "cancel" },
       {
         text: "로그아웃",
         style: "destructive",
         onPress: async () => {
           try {
-            // 1. 카카오 SDK 로그아웃 시도
-            await logout();
-            console.log("✅ 카카오 SDK 로그아웃 성공");
-          } catch (error: any) {
-            // 🌟 핵심 방어 코드: 토큰이 없다는 에러가 나도 이미 로그아웃된 상태이므로 정상 진행합니다.
-            console.log(
-              "카카오 토큰이 없거나 이미 만료됨 (정상적으로 로컬 정리 진행):",
-              error?.message || error,
-            );
-          } finally {
-            // 2. 에러 발생 여부와 관계없이 저장소 토큰 삭제 및 화면 이동은 '무조건' 실행
-            try {
-              await SecureStore.deleteItemAsync("accessToken");
-            } catch (e) {
-              console.error("SecureStore 삭제 중 에러:", e);
-            }
-
-            Alert.alert("완료", "안전하게 로그아웃되었습니다.");
-
-            // 3. 로그인 화면으로 자연스럽게 전환
+            await logoutUser();
+            //Alert.alert("완료", "안전하게 로그아웃되었습니다.");
+            showAlert("완료", "안전하게 로그아웃되었습니다.");
+            router.replace("/login");
+          } catch (error) {
+            console.error("로그아웃 처리 중 에러:", error);
             router.replace("/login");
           }
         },
       },
     ]);
+    // Alert.alert("로그아웃", "정말 로그아웃 하시겠어요?", [
+    //   { text: "취소", style: "cancel" },
+    //   {
+    //     text: "로그아웃",
+    //     style: "destructive",
+    //     onPress: async () => {
+    //       try {
+    //         await logoutUser();
+    //         Alert.alert("완료", "안전하게 로그아웃되었습니다.");
+    //         router.replace("/login");
+    //       } catch (error) {
+    //         console.error("로그아웃 처리 중 에러:", error);
+    //         router.replace("/login");
+    //       }
+    //     },
+    //   },
+    // ]);
   };
 
   // ⚠️ 회원 탈퇴 처리
@@ -67,6 +70,7 @@ export default function AccountDetailScreen() {
           onPress: async () => {
             try {
               await deleteAccount();
+              await logoutUser();
               Alert.alert("처리 완료", "회원 탈퇴가 완료되었습니다.");
               router.replace("/login");
             } catch (error) {

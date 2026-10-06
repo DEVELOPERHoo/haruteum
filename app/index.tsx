@@ -7,8 +7,8 @@ import {
   Animated,
 } from "react-native";
 import { useRouter } from "expo-router";
-import * as SecureStore from "expo-secure-store";
 import { checkAuth, refreshAccessToken } from "../services/apiClient";
+import { getAccessToken, clearTokens } from "../services/authService";
 import { fontScale } from "../utils/responsive";
 
 export default function SplashScreen() {
@@ -31,34 +31,33 @@ export default function SplashScreen() {
   }, []);
 
   const checkLoginStatus = async () => {
-    const accessToken = await SecureStore.getItemAsync("accessToken");
-
-    // 1. 토큰 자체가 없으면 로그인으로
-    if (!accessToken) {
-      router.replace("/login");
-      return;
-    }
-
     try {
-      // 2. 토큰 유효성 검사
+      const accessToken = await getAccessToken();
+
+      if (!accessToken) {
+        router.replace("/login");
+        return;
+      }
+      // 토큰 유효성 검사
       const isValid = await checkAuth();
 
       if (isValid) {
-        // 3. 유효하면 홈으로
+        // 유효하면 홈으로
         router.replace("/home");
       } else {
-        // 4. 만료됐으면 refresh 시도
+        // 만료됐으면 refresh 시도
         try {
           await refreshAccessToken();
           router.replace("/home"); // 갱신 성공 → 홈으로
         } catch {
           // 갱신 실패 → 로그인으로
-          await SecureStore.deleteItemAsync("accessToken");
-          await SecureStore.deleteItemAsync("refreshToken");
+          await clearTokens();
           router.replace("/login");
         }
       }
-    } catch {
+    } catch (error) {
+      console.log("스플래시 로그인 체크 중 에러:", error);
+      await clearTokens();
       router.replace("/login");
     }
   };
