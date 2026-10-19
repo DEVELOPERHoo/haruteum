@@ -104,7 +104,6 @@ export default function SubmitButton() {
   );
 }
 
-// 스타일시트는 기존 코드 그대로 유지
 const styles = StyleSheet.create({
   button: {
     width: "100%",

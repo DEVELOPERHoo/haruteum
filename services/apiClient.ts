@@ -2,26 +2,38 @@
 import { BASE_URL } from "../constants/config";
 import { clearTokens, getAccessToken, saveTokens } from "./authService";
 
+// 토큰 재발급 중복 실행 방지를 위한 Lock 변수
+let isRefreshing = false;
+
 // accessToken 갱신
 export const refreshAccessToken = async () => {
-  const refreshToken = await getAccessToken();
+  if (isRefreshing) {
+    throw new Error("이미 토큰 갱신이 진행 중 입니다.");
+  }
 
-  if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
+  isRefreshing = true;
+  try {
+    const refreshToken = await getAccessToken();
 
-  const response = await fetch(`${BASE_URL}/api/v1/auth/reissue`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${refreshToken}`,
-    },
-  });
+    if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
 
-  if (!response.ok) throw new Error("refresh 실패");
+    const response = await fetch(`${BASE_URL}/api/v1/auth/reissue`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${refreshToken}`,
+      },
+    });
 
-  const data = await response.json();
+    if (!response.ok) throw new Error("refresh 실패");
 
-  await saveTokens(data.accessToken, data.refreshToken);
+    const data = await response.json();
 
-  return data.accessToken;
+    await saveTokens(data.accessToken, data.refreshToken);
+
+    return data.accessToken;
+  } finally {
+    isRefreshing = false;
+  }
 };
 // 토큰 유효성 검사
 export const checkAuth = async (): Promise<boolean> => {

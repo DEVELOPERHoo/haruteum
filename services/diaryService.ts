@@ -56,7 +56,7 @@ export const diaryService = {
 
       formData.append("mode", mode);
 
-      // 3. POST 통신 실행 (문법 오류 및 중복 괄호 완전 청소 ✨)
+      // 3. POST 통신 실행
       const response = await apiRequest(
         "/api/v1/memory/create",
         {

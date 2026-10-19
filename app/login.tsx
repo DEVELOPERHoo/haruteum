@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
-import { login, loginWithKakaoAccount } from "@react-native-seoul/kakao-login";
+import { login, logout as kakaoLogout } from "@react-native-seoul/kakao-login";
 import { ArrowLeft } from "lucide-react-native";
 import {
   loginWithKakao,
@@ -24,7 +24,14 @@ export default function LoginScreen() {
   const [isLoading, setIsLoading] = useState(false);
   // 카카오 로그인 SDK 호출 (타임아웃 및 풀백 적용)
   const getKakaoToken = async () => {
-    // 10초 타임아웃 프로미스 생성(시간 초과로 인한 실패만 다루기에 reject만 사용)
+    try {
+      await kakaoLogout();
+      console.log("로그인 시도 전 기존 카카오 세션 청소 완료");
+    } catch (e) {
+      // 이미 세션이 만료되었거나 처음 로그인하는 유저인 경우
+      // kakaoLogout()이 에러를 던지므로, 이를 catch로 잡아 무시하고 정상 진행
+    }
+    // 7초 타임아웃 프로미스 생성(시간 초과로 인한 실패만 다루기에 reject만 사용)
     const timeoutPromise = new Promise((_, reject) =>
       setTimeout(
         () => reject(new Error("카카오 로그인 응답 시간이 초과되었습니다.")),

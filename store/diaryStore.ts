@@ -14,7 +14,7 @@ interface DiaryStore {
   setSelectedEmotionId: (emotionId: string | null) => void;
   setPhotoUris: (uris: string[]) => void; // 🌟 배열 저장 액션
 
-  // 🌟 [추가] 백엔드에서 받아온 결과 데이터를 담을 state
+  // 백엔드에서 받아온 결과 데이터를 담을 state
   resultData: DiaryResultData | null;
   setResultData: (data: DiaryResultData) => void; // 결과 저장 액션
   // 폼 리셋 함수 (결과 데이터까지 싹 청소)
@@ -41,7 +41,7 @@ export const useDiaryStore = create<DiaryStore>((set) => ({
     set({
       content: "",
       selectedEmotionId: null,
-      photoUris: [], // ✨ 깔끔하게 청소!
+      photoUris: [],
       resultData: null,
     }),
 }));

@@ -129,7 +129,7 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   selectedButton: {
-    backgroundColor: "rgba(212, 165, 154, 0.15)", // 네가 SubmitButton에 쓴 예쁜 브라운 브릭 톤온톤 매칭!
+    backgroundColor: "rgba(212, 165, 154, 0.15)",
   },
   emojiText: {
     fontSize: 24,
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     letterSpacing: -0.3,
   },
   selectedLabel: {
-    color: "#D4A59A", // 선택 시 라벨 색상도 톤온톤으로 세련되게 통일
+    color: "#D4A59A",
     fontWeight: "600",
   },
 });
