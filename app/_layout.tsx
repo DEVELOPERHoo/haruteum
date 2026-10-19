@@ -1,6 +1,7 @@
 // app/_layout.tsx
 import { Stack } from "expo-router";
 import CustomAlertModal from "../components/common/CustomAlertModal";
+import CustomToast from "../components/common/CustomToast";
 
 export default function RootLayout() {
   return (
@@ -34,6 +35,7 @@ export default function RootLayout() {
         />
       </Stack>
       <CustomAlertModal />
+      <CustomToast />
     </>
   );
 }

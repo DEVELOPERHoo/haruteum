@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { useAlertStore } from "../../store/useAlertStore";
+import { useToastStore } from "../../store/useToastStore";
 import { ArrowLeft, LogOut, UserX, ChevronRight } from "lucide-react-native";
 import { logoutUser, deleteAccount } from "../../services/authService";
 import { scale } from "../../utils/responsive";
@@ -17,6 +18,7 @@ import { scale } from "../../utils/responsive";
 export default function AccountDetailScreen() {
   const router = useRouter();
   const { showAlert } = useAlertStore();
+  const { showToast } = useToastStore();
 
   // 방어 로직이 적용된 안전한 로그아웃 처리 함수
   const handleLogout = () => {
@@ -28,8 +30,7 @@ export default function AccountDetailScreen() {
         onPress: async () => {
           try {
             await logoutUser();
-            //Alert.alert("완료", "안전하게 로그아웃되었습니다.");
-            showAlert("완료", "안전하게 로그아웃되었습니다.");
+            showToast("안전하게 로그아웃되었습니다.");
             router.replace("/login");
           } catch (error) {
             console.error("로그아웃 처리 중 에러:", error);
@@ -38,23 +39,6 @@ export default function AccountDetailScreen() {
         },
       },
     ]);
-    // Alert.alert("로그아웃", "정말 로그아웃 하시겠어요?", [
-    //   { text: "취소", style: "cancel" },
-    //   {
-    //     text: "로그아웃",
-    //     style: "destructive",
-    //     onPress: async () => {
-    //       try {
-    //         await logoutUser();
-    //         Alert.alert("완료", "안전하게 로그아웃되었습니다.");
-    //         router.replace("/login");
-    //       } catch (error) {
-    //         console.error("로그아웃 처리 중 에러:", error);
-    //         router.replace("/login");
-    //       }
-    //     },
-    //   },
-    // ]);
   };
 
   // ⚠️ 회원 탈퇴 처리
