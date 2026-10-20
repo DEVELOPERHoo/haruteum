@@ -12,7 +12,7 @@ let isLoggingInProcess = false; // 카카오 로그인 진행 중 포그라운�
 export const setloggingInProcess = (status: boolean) => {
   isLoggingInProcess = status;
 };
-/**
+/*
  * 앱 포그라운드(active) 전환 시 토큰 자동 검증 서비스
  */
 export const initAppStateAuthCheck = () => {

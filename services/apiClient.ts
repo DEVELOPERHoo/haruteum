@@ -1,6 +1,6 @@
-// services/apiClient.ts
 import { BASE_URL } from "../constants/config";
 import { clearTokens, getAccessToken, saveTokens } from "./authService";
+import { fetchWithRetry } from "./fetchWithRetry";
 
 // 토큰 재발급 중복 실행 방지를 위한 Lock 변수
 let isRefreshing = false;
@@ -17,12 +17,16 @@ export const refreshAccessToken = async () => {
 
     if (!refreshToken) throw new Error("리프레시 토큰이 없습니다.");
 
-    const response = await fetch(`${BASE_URL}/api/v1/auth/reissue`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${refreshToken}`,
+    const response = await fetchWithRetry(
+      `${BASE_URL}/api/v1/auth/reissue`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
       },
-    });
+      { retries: 1, backoff: 1000 },
+    );
 
     if (!response.ok) throw new Error("refresh 실패");
 
@@ -41,12 +45,16 @@ export const checkAuth = async (): Promise<boolean> => {
 
   if (!accessToken) return false;
   try {
-    const response = await fetch(`${BASE_URL}/api/v1/auth/check`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    const response = await fetchWithRetry(
+      `${BASE_URL}/api/v1/auth/check`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       },
-    });
+      { retries: 1, backoff: 1000 },
+    );
     return response.ok;
   } catch (error) {
     return false;
@@ -79,19 +87,27 @@ export const apiRequest = async (
     });
   }
 
-  let response = await fetch(`${BASE_URL}${url}`, {
-    ...options,
-    headers,
-  });
+  let response = await fetchWithRetry(
+    `${BASE_URL}${url}`,
+    {
+      ...options,
+      headers,
+    },
+    { retries: 2, backoff: 1000 }, // 최대 2회 적용
+  );
 
   if (response.status === 401) {
     try {
       const newAccessToken = await refreshAccessToken();
       headers.set("Authorization", `Bearer ${newAccessToken}`);
-      response = await fetch(`${BASE_URL}${url}`, {
-        ...options,
-        headers,
-      });
+      response = await fetchWithRetry(
+        `${BASE_URL}${url}`,
+        {
+          ...options,
+          headers,
+        },
+        { retries: 1, backoff: 1000 },
+      );
     } catch {
       await clearTokens();
       throw new Error("로그인이 필요합니다.");

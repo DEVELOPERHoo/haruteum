@@ -4,6 +4,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { logout as kakaoLogout } from "@react-native-seoul/kakao-login";
 import { apiRequest, parseResponse } from "./apiClient";
 import { BASE_URL } from "../constants/config";
+import { fetchWithRetry } from "./fetchWithRetry";
 
 interface KakaoLoginResponse {
   accessToken: string;
@@ -15,12 +16,16 @@ interface KakaoLoginResponse {
 export const loginWithKakao = async (
   kakaoToken: string,
 ): Promise<KakaoLoginResponse> => {
-  const response = await fetch(`${BASE_URL}/api/v1/auth/kakao-login-token`, {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${kakaoToken}`,
+  const response = await fetchWithRetry(
+    `${BASE_URL}/api/v1/auth/kakao-login-token`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${kakaoToken}`,
+      },
     },
-  });
+    { retries: 2, backoff: 1000 },
+  );
 
   if (!response.ok) {
     throw new Error("카카오 로그인 실패");
@@ -86,12 +91,16 @@ export const getAccessToken = async () => {
 
 // 회원 복귀
 export const restoreAccount = async (accessToken: string) => {
-  const res = await fetch(`${BASE_URL}/api/v1/auth/me/restore`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
+  const res = await fetchWithRetry(
+    `${BASE_URL}/api/v1/auth/me/restore`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
     },
-  });
+    { retries: 2, backoff: 1000 },
+  );
 
   if (!res.ok) throw new Error("복귀 실패");
   const text = await res.text();
