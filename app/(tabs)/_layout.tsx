@@ -1,8 +1,14 @@
 import { Tabs } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { Platform } from "react-native";
+import { initAppStateAuthCheck } from "../../services/appStateService";
+import { useEffect } from "react";
 
 export default function TabsLayout() {
+  useEffect(() => {
+    const cleanup = initAppStateAuthCheck(); // initAppStateAuthCheck() 함수 호출과 동시에 해체함수가 cleanup 변수에 보관됨
+    return () => cleanup(); // 컴포넌트 언마운트 시 이벤트 해제
+  }, []);
   return (
     <Tabs
       screenOptions={{

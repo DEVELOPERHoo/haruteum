@@ -40,7 +40,6 @@ export const saveTokens = async (accessToken: string, refreshToken: string) => {
       AsyncStorage.setItem("accessToken", String(accessToken)),
       AsyncStorage.setItem("refreshToken", String(refreshToken)),
     ]);
-    console.log("로컬 토큰 저장 완료");
   } catch (error) {
     console.log("토큰 저장 중 오류:", error);
   }

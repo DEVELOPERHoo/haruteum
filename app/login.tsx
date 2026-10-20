@@ -1,5 +1,5 @@
 // app/login.tsx
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -18,10 +18,15 @@ import {
   restoreAccount,
 } from "../services/authService";
 import { fontScale, scale } from "../utils/responsive";
+import { useAlertStore } from "../store/useAlertStore";
+import { setloggingInProcess } from "../services/appStateService";
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { showAlert } = useAlertStore();
   const [isLoading, setIsLoading] = useState(false);
+
+  const isNavigating = useRef(false);
   // 카카오 로그인 SDK 호출 (타임아웃 및 풀백 적용)
   const getKakaoToken = async () => {
     try {
@@ -44,11 +49,13 @@ export default function LoginScreen() {
   };
 
   const handleKakaoLogin = async () => {
+    if (isLoading || isNavigating.current) return; //이미 로그인 진행 중이거나 화면 이동 중이라면 즉시 중복 실행 차단
+
     setIsLoading(true);
+    setloggingInProcess(true); // 카카오 로그인 시작(포그라운드 검사 일시 중지)
     const startTime = Date.now();
     try {
       console.log("카카오 로그인 프로세스 시작...");
-      //const tokenResult = await login();
       const tokenResult = await getKakaoToken();
 
       console.log(
@@ -61,14 +68,15 @@ export default function LoginScreen() {
 
       // 탈퇴 회원 → 복귀 의사 확인
       if (data.withdraw) {
-        Alert.alert(
+        setIsLoading(false);
+        setloggingInProcess(false);
+        showAlert(
           "탈퇴한 계정",
           "이전에 탈퇴한 계정이에요.\n다시 시작하시겠어요?",
           [
             {
               text: "아니오",
               style: "cancel",
-              onPress: () => {},
             },
             {
               text: "네, 복귀할게요",
@@ -79,10 +87,13 @@ export default function LoginScreen() {
 
                   // 복귀 성공 → 토큰 저장 후 홈으로
                   await saveTokens(data.accessToken, data.refreshToken);
-                  router.replace("/home");
+                  if (!isNavigating.current) {
+                    isNavigating.current = true;
+                    router.replace("/home");
+                  }
                 } catch (error) {
                   console.log(error);
-                  Alert.alert("오류", "복귀 처리 중 문제가 발생했습니다.");
+                  showAlert("오류", "복귀 처리 중 문제가 발생했습니다.");
                 }
               },
             },
@@ -93,8 +104,10 @@ export default function LoginScreen() {
       const saveStartTime = Date.now();
       await saveTokens(data.accessToken, data.refreshToken);
       console.log(`로컬 토큰 저장 완료 (${Date.now() - saveStartTime}ms)`);
-
-      router.replace("/home");
+      if (!isNavigating.current) {
+        isNavigating.current = true;
+        router.replace("/home");
+      }
     } catch (error: any) {
       // 🌟 디버깅을 위해 상세 에러 로그를 터미널에 출력합니다.
       console.error("❌ 카카오 로그인 에러 상세:", error);
@@ -103,18 +116,19 @@ export default function LoginScreen() {
         error?.code === "E_CANCELLED_OPERATION" ||
         error?.message?.includes("cancelled")
       ) {
-        Alert.alert(
+        showAlert(
           "로그인 취소",
           "서비스를 이용하시려면 로그인이 필요합니다. ☺️",
         );
       } else {
-        Alert.alert(
+        showAlert(
           "오류",
           `로그인 처리 중 문제가 발생했습니다.\n(${error?.message || "알 수 없는 에러"})`,
         );
       }
     } finally {
       setIsLoading(false);
+      setloggingInProcess(false); //카카오 로그인 종료(포그라운드 검사 다시 활성화)
     }
   };
 
