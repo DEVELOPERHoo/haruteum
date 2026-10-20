@@ -57,7 +57,7 @@ export const clearTokens = async () => {
       SecureStore.deleteItemAsync("accessToken").catch(() => {}),
       SecureStore.deleteItemAsync("refreshToken").catch(() => {}),
       AsyncStorage.removeItem("accessToken").catch(() => {}),
-      AsyncStorage.removeItem("accessToken").catch(() => {}),
+      AsyncStorage.removeItem("refreshToken").catch(() => {}),
     ]);
     console.log("로컬 저장소 토큰 삭제 완료");
   } catch (error) {
