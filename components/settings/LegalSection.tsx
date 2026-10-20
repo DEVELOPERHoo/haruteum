@@ -12,20 +12,26 @@ import {
   FileText,
   HelpCircle,
   ChevronRight,
+  Info,
+  FileCheck,
 } from "lucide-react-native";
 import { scale } from "../../utils/responsive";
+import { useRouter } from "expo-router";
+import { useToastStore } from "../../store/useToastStore";
 
 export default function LegalSection() {
+  const router = useRouter();
+  const { showToast } = useToastStore();
   const openExternalLink = async (url: string) => {
     try {
       const supported = await Linking.canOpenURL(url);
       if (supported) {
         await Linking.openURL(url);
       } else {
-        Alert.alert("알림", "연결할 수 없는 링크입니다.");
+        showToast("연결할 수 없는 링크입니다.");
       }
     } catch (error) {
-      Alert.alert("오류", "페이지를 여는 중 문제가 발생했습니다.");
+      showToast("페이지를 여는 중 문제가 발생했습니다.");
     }
   };
 
@@ -36,34 +42,33 @@ export default function LegalSection() {
 
       {/* 메뉴 카드 */}
       <View style={styles.menuCard}>
-        {/* 개인정보 처리방침 */}
+        {/* 앱 정보 및 버전 */}
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
-          onPress={() => openExternalLink("https://haruteum.com/privacy")}
+          onPress={() => router.push("/setting-menu/app-info")}
         >
           <View style={styles.menuLeft}>
-            <View style={[styles.iconCircle, { backgroundColor: "#E8EAF6" }]}>
-              <Shield size={18} color="#3F51B5" />
+            <View style={[styles.iconCircle, { backgroundColor: "#EEDFDC" }]}>
+              <Info size={18} color="#3E2723" />
             </View>
-            <Text style={styles.menuTitle}>개인정보 처리방침</Text>
+            <Text style={styles.menuTitle}>앱 정보 및 라이선스</Text>
           </View>
           <ChevronRight size={18} color="#BCAAA4" />
         </TouchableOpacity>
 
         <View style={styles.divider} />
-
-        {/* 서비스 이용약관 */}
+        {/* 약관 및 정책 */}
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
-          onPress={() => openExternalLink("https://haruteum.com/terms")}
+          onPress={() => router.push("/setting-menu/policy")}
         >
           <View style={styles.menuLeft}>
             <View style={[styles.iconCircle, { backgroundColor: "#E0F2F1" }]}>
-              <FileText size={18} color="#00796B" />
+              <FileCheck size={18} color="#00796B" />
             </View>
-            <Text style={styles.menuTitle}>서비스 이용약관</Text>
+            <Text style={styles.menuTitle}>약관 및 정책</Text>
           </View>
           <ChevronRight size={18} color="#BCAAA4" />
         </TouchableOpacity>
