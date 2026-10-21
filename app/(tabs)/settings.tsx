@@ -7,7 +7,7 @@ import {
   Dimensions,
   Platform,
 } from "react-native";
-import { useRouter, usePathname, Stack } from "expo-router";
+import { useRouter, usePathname } from "expo-router";
 
 import AccountSection from "../../components/settings/AccountSection";
 import LegalSection from "../../components/settings/LegalSection";
@@ -63,12 +63,11 @@ export default function SettingsScreen() {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.header}>
-              <Text style={styles.headerSub}>환경설정</Text>
+              <Text style={styles.headerSub}>Settings</Text>
               <Text style={styles.headerTitle}>설정</Text>
             </View>
 
             <AccountSection />
-
             <LegalSection />
           </ScrollView>
 
@@ -109,17 +108,17 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   headerSub: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#BCAAA4",
     letterSpacing: 2,
-    fontWeight: "500",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   headerTitle: {
-    fontSize: 26,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "600",
     color: "#3E2723",
     letterSpacing: -0.5,
+    marginBottom: 4,
   },
   footerWrapper: {
     paddingVertical: 12,

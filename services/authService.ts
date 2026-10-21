@@ -12,6 +12,9 @@ interface KakaoLoginResponse {
   withdraw: boolean;
 }
 
+// 속도 개선을 위해 메모리 캐시 사용
+let memoryAccessToken: string | null = null;
+
 // 카카오 인가 토큰으로 백엔드 로그인
 export const loginWithKakao = async (
   kakaoToken: string,
@@ -37,6 +40,8 @@ export const loginWithKakao = async (
 
 // 엑세스/리프레시 토큰 저장 (SecureStorage, AsyncStorage 이중 동기화)
 export const saveTokens = async (accessToken: string, refreshToken: string) => {
+  // 메모리 캐시 즉시 갱신
+  memoryAccessToken = accessToken;
   try {
     // 시간 단축을 위한 병렬처리
     await Promise.all([
@@ -52,6 +57,7 @@ export const saveTokens = async (accessToken: string, refreshToken: string) => {
 
 // 로컬 저장소 토큰 일괄 삭제
 export const clearTokens = async () => {
+  memoryAccessToken = null;
   try {
     await Promise.all([
       SecureStore.deleteItemAsync("accessToken").catch(() => {}),
@@ -78,11 +84,15 @@ export const logoutUser = async () => {
 
 // 저장된 엑세스 토큰 조회
 export const getAccessToken = async () => {
+  if (memoryAccessToken) {
+    return memoryAccessToken;
+  }
   try {
     let token = await SecureStore.getItemAsync("accessToken");
     if (!token) {
       token = await AsyncStorage.getItem("accessToken");
     }
+    memoryAccessToken = token;
     return token;
   } catch (error) {
     return null;

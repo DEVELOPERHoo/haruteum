@@ -1,5 +1,5 @@
 // components/settings/LegalSection.tsx
-import React from "react";
+import React, { memo } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,7 +12,7 @@ import { scale } from "../../utils/responsive";
 import { useRouter } from "expo-router";
 import { useToastStore } from "../../store/useToastStore";
 
-export default function LegalSection() {
+function LegalSection() {
   const router = useRouter();
   const { showToast } = useToastStore();
 
@@ -88,6 +88,8 @@ export default function LegalSection() {
     </View>
   );
 }
+
+export default memo(LegalSection);
 
 const styles = StyleSheet.create({
   container: {

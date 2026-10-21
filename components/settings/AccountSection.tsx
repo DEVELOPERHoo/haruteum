@@ -1,11 +1,11 @@
 // components/settings/AccountSection.tsx
-import React from "react";
+import React, { memo } from "react";
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { useRouter } from "expo-router";
 import { ChevronRight, UserCheck, ShieldCheck } from "lucide-react-native";
 import { scale } from "../../utils/responsive";
 
-export default function AccountSection() {
+function AccountSection() {
   const router = useRouter();
 
   return (
@@ -13,14 +13,12 @@ export default function AccountSection() {
       <Text style={styles.sectionCategory}>내 계정</Text>
 
       <View style={styles.menuCard}>
-        {/* 1. 사용자 정보 (은은한 소프트 웜 피치/코랄 톤 적용) */}
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
           onPress={() => router.push("/setting-menu/user-info")}
         >
           <View style={styles.menuLeft}>
-            {/* 🌟 기존의 진한 핑크/레드를 걷어내고 부드러운 피치/코랄 톤(#FDF0ED / #D87A68) 적용 */}
             <View style={[styles.iconCircle, { backgroundColor: "#FDF0ED" }]}>
               <UserCheck size={18} color="#D87A68" />
             </View>
@@ -33,7 +31,6 @@ export default function AccountSection() {
 
         <View style={styles.divider} />
 
-        {/* 2. 계정 관리 (차분한 웜 베이지) */}
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
@@ -53,6 +50,8 @@ export default function AccountSection() {
     </View>
   );
 }
+
+export default memo(AccountSection);
 
 const styles = StyleSheet.create({
   section: {

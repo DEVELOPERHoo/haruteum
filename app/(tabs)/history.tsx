@@ -9,7 +9,7 @@ import {
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
+  Platform,
 } from "react-native";
 import { useRouter, usePathname } from "expo-router";
 import { Check, Trash2, X } from "lucide-react-native";
@@ -310,7 +310,7 @@ export default function HistoryScreen() {
       >
         <View style={styles.pageContainer} />
 
-        <View style={styles.pageContainer}>
+        <View style={[styles.pageContainer, , styles.settingMainWrapper]}>
           {/* 동적 헤더 (일반 ↔ 선택 모드) */}
           {isSelectionMode ? (
             <View style={styles.selectionHeader}>
@@ -420,7 +420,12 @@ const styles = StyleSheet.create({
   baseContainer: { flex: 1, backgroundColor: "#FAF7F5" },
   horizontalWrapper: { width: width * 3 },
   pageContainer: { width, flex: 1 },
-  header: { paddingHorizontal: scale(20), paddingTop: 24, paddingBottom: 12 },
+  settingMainWrapper: {
+    justifyContent: "space-between",
+    paddingTop: Platform.OS === "ios" ? 60 : 40,
+    paddingBottom: Platform.OS === "ios" ? 20 : 16,
+  },
+  header: { paddingHorizontal: scale(20), paddingBottom: 12 },
   headerSub: {
     fontSize: 11,
     color: "#BCAAA4",
