@@ -15,6 +15,8 @@ import { useRouter, usePathname } from "expo-router";
 import { Check, Trash2, X } from "lucide-react-native";
 import { useHistoryStore } from "../../store/historyStore";
 import { useDiaryStore } from "../../store/diaryStore";
+import { useAlertStore } from "../../store/useAlertStore";
+import { useToastStore } from "../../store/useToastStore";
 import { fetchHistory, deleteMemories } from "../../services/historyService";
 import { getEmotionEmoji } from "../../constants/emotions";
 import { BASE_URL } from "../../constants/config";
@@ -35,6 +37,7 @@ export default function HistoryScreen() {
   // 🌟 다중 선택 모드 상태 (memoryId가 string 타입이므로 string[]으로 지정)
   const [isSelectionMode, setIsSelectionMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const { showToast } = useToastStore();
 
   const {
     historyList,
@@ -51,6 +54,7 @@ export default function HistoryScreen() {
   } = useHistoryStore();
 
   const { mode } = useDiaryStore();
+  const { showAlert } = useAlertStore();
 
   useEffect(() => {
     if (pathname !== "/history") return;
@@ -138,7 +142,7 @@ export default function HistoryScreen() {
   const handleDeleteSelected = () => {
     if (selectedIds.length === 0) return;
 
-    Alert.alert(
+    showAlert(
       "기록 삭제",
       `선택한 ${selectedIds.length}개의 기록을 삭제하시겠어요?\n삭제된 기록은 복구할 수 없습니다.`,
       [
@@ -149,13 +153,14 @@ export default function HistoryScreen() {
           onPress: async () => {
             try {
               await deleteMemories(selectedIds);
+              showToast("삭제가 완료되었습니다.");
               setIsHistoryStale(true);
               exitSelectionMode();
               resetHistory();
               loadMore(true);
             } catch (error) {
               console.log("삭제 에러 상세:", error);
-              Alert.alert("오류", "삭제 처리 중 문제가 발생했습니다.");
+              showAlert("오류", "삭제 처리 중 문제가 발생했습니다.");
             }
           },
         },

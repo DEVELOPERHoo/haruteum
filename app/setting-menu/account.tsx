@@ -43,7 +43,7 @@ export default function AccountDetailScreen() {
 
   // ⚠️ 회원 탈퇴 처리
   const handleUnlink = () => {
-    Alert.alert(
+    showAlert(
       "회원 탈퇴",
       "탈퇴 시 저장된 일기 데이터가 모두 삭제되며 복구할 수 없습니다. 정말 탈퇴하시겠어요?",
       [
@@ -55,11 +55,11 @@ export default function AccountDetailScreen() {
             try {
               await deleteAccount();
               await logoutUser();
-              Alert.alert("처리 완료", "회원 탈퇴가 완료되었습니다.");
+              showAlert("처리 완료", "회원 탈퇴가 완료되었습니다.");
               router.replace("/login");
             } catch (error) {
               console.log("삭제 에러 상세:", error);
-              Alert.alert("오류", "탈퇴 처리 중 문제가 발생했습니다.");
+              showAlert("오류", "탈퇴 처리 중 문제가 발생했습니다.");
             }
           },
         },
@@ -69,16 +69,22 @@ export default function AccountDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* 뒤로가기 헤더 */}
       <View style={styles.header}>
+        {/* 뒤로가기 헤더 */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <ArrowLeft size={20} color="#3E2723" />
+          <ArrowLeft size={16} color="rgba(136,136,136,0.6)" />
+          <Text style={styles.backText}> 돌아가기</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>계정 관리</Text>
+      </View>
+
+      {/* 타이틀 */}
+      <View style={styles.titleArea}>
+        <Text style={styles.titleSub}>Account Settings</Text>
+        <Text style={styles.titleMain}>계정 관리</Text>
       </View>
 
       {/* 로그아웃 및 회원 탈퇴 버튼 카드 */}
@@ -140,10 +146,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 24,
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
     gap: 12,
   },
   backButton: {
-    padding: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: "rgba(136,136,136,0.6)",
+    letterSpacing: -0.3,
+  },
+  titleArea: {
+    marginBottom: 28,
+  },
+  titleSub: {
+    fontSize: 11,
+    color: "#BCAAA4",
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  titleMain: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#3E2723",
+    letterSpacing: -0.5,
   },
   headerTitle: {
     fontSize: 20,

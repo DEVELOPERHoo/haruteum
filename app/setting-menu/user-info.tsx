@@ -156,13 +156,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FAF7F5",
     paddingHorizontal: scale(20),
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    marginTop: Platform.OS === "ios" ? 60 : 20,
-    marginBottom: 16,
+    marginBottom: 24,
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
+    gap: 12,
   },
   backButton: {
     flexDirection: "row",

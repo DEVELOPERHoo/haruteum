@@ -1,3 +1,4 @@
+// components/settings/LegalSection.tsx
 import React from "react";
 import {
   StyleSheet,
@@ -5,16 +6,8 @@ import {
   View,
   TouchableOpacity,
   Linking,
-  Alert,
 } from "react-native";
-import {
-  Shield,
-  FileText,
-  HelpCircle,
-  ChevronRight,
-  Info,
-  FileCheck,
-} from "lucide-react-native";
+import { HelpCircle, ChevronRight, Info, FileCheck } from "lucide-react-native";
 import { scale } from "../../utils/responsive";
 import { useRouter } from "expo-router";
 import { useToastStore } from "../../store/useToastStore";
@@ -22,6 +15,7 @@ import { useToastStore } from "../../store/useToastStore";
 export default function LegalSection() {
   const router = useRouter();
   const { showToast } = useToastStore();
+
   const openExternalLink = async (url: string) => {
     try {
       const supported = await Linking.canOpenURL(url);
@@ -42,15 +36,15 @@ export default function LegalSection() {
 
       {/* 메뉴 카드 */}
       <View style={styles.menuCard}>
-        {/* 앱 정보 및 버전 */}
+        {/* 1. 앱 정보 및 라이선스 (웜 베이지) */}
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
           onPress={() => router.push("/setting-menu/app-info")}
         >
           <View style={styles.menuLeft}>
-            <View style={[styles.iconCircle, { backgroundColor: "#EEDFDC" }]}>
-              <Info size={18} color="#3E2723" />
+            <View style={[styles.iconCircle, { backgroundColor: "#F5ECE9" }]}>
+              <Info size={18} color="#8D6E63" />
             </View>
             <Text style={styles.menuTitle}>앱 정보 및 라이선스</Text>
           </View>
@@ -58,15 +52,16 @@ export default function LegalSection() {
         </TouchableOpacity>
 
         <View style={styles.divider} />
-        {/* 약관 및 정책 */}
+
+        {/* 2. 약관 및 정책 (소프트 브라운) */}
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
           onPress={() => router.push("/setting-menu/policy")}
         >
           <View style={styles.menuLeft}>
-            <View style={[styles.iconCircle, { backgroundColor: "#E0F2F1" }]}>
-              <FileCheck size={18} color="#00796B" />
+            <View style={[styles.iconCircle, { backgroundColor: "#EFEBE9" }]}>
+              <FileCheck size={18} color="#795548" />
             </View>
             <Text style={styles.menuTitle}>약관 및 정책</Text>
           </View>
@@ -75,15 +70,15 @@ export default function LegalSection() {
 
         <View style={styles.divider} />
 
-        {/* 문의하기 */}
+        {/* 3. 문의하기 (소프트 브라운) */}
         <TouchableOpacity
           style={styles.menuItem}
           activeOpacity={0.7}
           onPress={() => openExternalLink("mailto:support@haruteum.com")}
         >
           <View style={styles.menuLeft}>
-            <View style={[styles.iconCircle, { backgroundColor: "#FFF8E1" }]}>
-              <HelpCircle size={18} color="#F57F17" />
+            <View style={[styles.iconCircle, { backgroundColor: "#EFEBE9" }]}>
+              <HelpCircle size={18} color="#795548" />
             </View>
             <Text style={styles.menuTitle}>문의하기</Text>
           </View>
@@ -96,7 +91,8 @@ export default function LegalSection() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 24,
+    marginTop: 0, // 상단 간격 조율
+    marginBottom: 32,
   },
   sectionHeader: {
     fontSize: 12,
@@ -119,7 +115,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    paddingVertical: 14,
+    paddingVertical: 16,
   },
   menuLeft: {
     flexDirection: "row",
@@ -127,9 +123,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   iconCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
   },

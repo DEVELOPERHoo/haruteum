@@ -12,10 +12,12 @@ import { useDiaryStore } from "../../store/diaryStore";
 import { useHistoryStore } from "../../store/historyStore";
 import { diaryService } from "../../services/diaryService";
 import { useRouter } from "expo-router";
+import { useAlertStore } from "../../store/useAlertStore";
 import AntDesign from "@expo/vector-icons/AntDesign";
 
 export default function SubmitButton() {
   const router = useRouter();
+  const { showAlert } = useAlertStore();
 
   // 스토어에서 유저가 입력한 진짜 상태들을 가져옵니다!
   const { content, selectedEmotionId, photoUris, mode } = useDiaryStore();
@@ -55,7 +57,7 @@ export default function SubmitButton() {
     } catch (error: any) {
       const message = error.message ?? "";
       if (message === "SERVER_EMPTY_DATA") {
-        Alert.alert(
+        showAlert(
           "분석 오류 😢",
           "서버에서 분석 데이터를 안정적으로 가져오지 못했습니다. 잠시 후 다시 시도해 주세요.",
           [{ text: "확인" }],
@@ -63,7 +65,7 @@ export default function SubmitButton() {
       } else if (message.includes("로그인이 필요")) {
         router.replace("/login");
       } else {
-        Alert.alert("기록 저장 실패 😢", message, [{ text: "확인" }]);
+        showAlert("기록 저장 실패 😢", message, [{ text: "확인" }]);
       }
     } finally {
       setIsGenerating(false);

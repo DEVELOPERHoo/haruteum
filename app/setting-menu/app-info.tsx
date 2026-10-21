@@ -28,14 +28,21 @@ export default function AppInfoScreen() {
     <View style={styles.container}>
       {/* 1. 상단 뒤로가기 헤더 */}
       <View style={styles.header}>
+        {/* 뒤로가기 헤더 */}
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <ArrowLeft size={20} color="#3E2723" />
+          <ArrowLeft size={16} color="rgba(136,136,136,0.6)" />
+          <Text style={styles.backText}> 돌아가기</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>앱 정보 및 라이선스</Text>
+      </View>
+
+      {/* 타이틀 */}
+      <View style={styles.titleArea}>
+        <Text style={styles.titleSub}>App Info & Licenses</Text>
+        <Text style={styles.titleMain}>앱 정보 및 라이선스</Text>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -99,10 +106,33 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 24,
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
     gap: 12,
   },
   backButton: {
-    padding: 4,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 4,
+  },
+  backText: {
+    fontSize: 14,
+    color: "rgba(136,136,136,0.6)",
+    letterSpacing: -0.3,
+  },
+  titleArea: {
+    marginBottom: 28,
+  },
+  titleSub: {
+    fontSize: 11,
+    color: "#BCAAA4",
+    letterSpacing: 2,
+    marginBottom: 4,
+  },
+  titleMain: {
+    fontSize: 22,
+    fontWeight: "600",
+    color: "#3E2723",
+    letterSpacing: -0.5,
   },
   headerTitle: {
     fontSize: fontScale(20),

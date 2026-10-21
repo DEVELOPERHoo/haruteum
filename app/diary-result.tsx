@@ -13,12 +13,13 @@ import {
 } from "react-native";
 import ViewShot from "react-native-view-shot";
 import * as Sharing from "expo-sharing";
-import { useRouter, Stack } from "expo-router";
+import { useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { ArrowLeft, ExternalLink } from "lucide-react-native";
 
 import { getFormattedDate } from "../utils/dateFormat";
 import { useDiaryStore } from "../store/diaryStore";
+import { useAlertStore } from "../store/useAlertStore";
 import { getEmotionEmoji } from "../constants/emotions";
 import { BASE_URL } from "../constants/config";
 import { fontScale, scale } from "../utils/responsive";
@@ -28,6 +29,7 @@ const CARD_WIDTH = width - 40;
 
 export default function DiaryResultScreen() {
   const router = useRouter();
+  const { showAlert } = useAlertStore();
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const viewShotRef = useRef<any>(null);
 
@@ -71,7 +73,7 @@ export default function DiaryResultScreen() {
 
       const isAvailable = await Sharing.isAvailableAsync();
       if (!isAvailable) {
-        Alert.alert("공유불가", "이 기기에서는 공유를 지원하지 않아요.");
+        showAlert("공유불가", "이 기기에서는 공유를 지원하지 않아요.");
         return;
       }
       await Sharing.shareAsync(uri, {
@@ -80,7 +82,7 @@ export default function DiaryResultScreen() {
       });
     } catch (error) {
       console.log("공유 에러:", error);
-      Alert.alert("오류", "공유 중 문제가 발생했습니다.");
+      showAlert("오류", "공유 중 문제가 발생했습니다.");
     }
   };
 
