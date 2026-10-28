@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { useRouter, Stack } from "expo-router";
+import { useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useDiaryStore } from "../store/diaryStore";
 import { fontScale, scale } from "../utils/responsive";
@@ -26,7 +26,11 @@ export default function HomeScreen() {
   const handleModeSelect = (selectedMode: "solo" | "together") => {
     setMode(selectedMode);
 
-    router.push("/diary");
+    if (selectedMode === "together") {
+      router.push("/home-menu");
+    } else {
+      router.push("/diary");
+    }
   };
 
   return (

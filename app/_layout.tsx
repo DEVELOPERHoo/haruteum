@@ -10,21 +10,25 @@ export default function RootLayout() {
         screenOptions={{
           headerShown: false,
           animation: "slide_from_right",
-          animationDuration: 150,
+          //animationDuration: 150,
+          gestureEnabled: true,
+          gestureDirection: "horizontal",
+          // 화면 전환 도중 배경색 깜빡임 방지
+          contentStyle: { backgroundColor: "#FAF7F5" },
         }}
       >
+        <Stack.Screen name="home" />
         <Stack.Screen name="index" />
+        <Stack.Screen name="login" />
         <Stack.Screen
           name="(tabs)"
           options={{
             headerShown: false,
             headerTitle: "하루 틈,",
             headerTitleAlign: "center",
-            headerShadowVisible: false, // 👈 둔탁한 그림자(elevation/shadow)를 끄는 정석 옵션!
+            headerShadowVisible: false,
             headerStyle: {
               backgroundColor: "#FFFFFF",
-              // borderBottomWidth 대신 스택 헤더 전용 선을 살리고 싶다면 아래처럼 하거나,
-              // 깔끔하게 안 보이고 싶을 땐 그냥 비워두는 게 안전해!
             },
             headerTitleStyle: {
               fontSize: 18,

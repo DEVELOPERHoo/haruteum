@@ -1,5 +1,5 @@
 // app/(tabs)/diary.tsx
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   ScrollView,
@@ -8,8 +8,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
+  BackHandler,
 } from "react-native";
-import { useRouter, usePathname } from "expo-router";
+import { useRouter, usePathname, useFocusEffect } from "expo-router";
 import DateHeader from "../../components/diary/DateHeader";
 import PhotoCard from "../../components/diary/PhotoCard";
 import TextInput from "../../components/diary/TextInput";
@@ -25,6 +26,33 @@ export default function DiaryScreen() {
   const horizontalScrollRef = useRef<ScrollView>(null);
   const verticalScrollRef = useRef<ScrollView>(null);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        try {
+          if ((router as any).dismissTo) {
+            (router as any).dismissTo("/home"); // 스택 최상단 화면부터 아래로 훑어가며 /home 화면 발견할때까지 pop(닫기)
+          } else if (router.canDismiss()) {
+            router.dismiss();
+          } else {
+            router.replace("/home");
+          }
+        } catch (error) {
+          router.replace("/home");
+        }
+
+        return true; // 안드로이드 기본 종료 동작 방지
+      };
+
+      const subscription = BackHandler.addEventListener(
+        "hardwareBackPress",
+        onBackPress,
+      );
+
+      return () => subscription.remove();
+    }, [router]),
+  );
+
   useEffect(() => {
     if (pathname === "/diary" || pathname === "/") {
       horizontalScrollRef.current?.scrollTo({ x: 0, animated: false });
