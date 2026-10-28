@@ -9,6 +9,7 @@ import {
   Image,
   Dimensions,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { useRouter, useLocalSearchParams, Stack } from "expo-router";
 import { ArrowLeft } from "lucide-react-native";
@@ -78,6 +79,7 @@ export default function MemoryDetailScreen() {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => router.back()}
+          activeOpacity={0.7}
         >
           <View style={styles.buttonRow}>
             <ArrowLeft size={16} color="rgba(136,136,136,0.6)" />
@@ -196,7 +198,11 @@ const styles = StyleSheet.create({
     color: "rgba(136,136,136,0.6)",
     letterSpacing: -0.3,
   },
-  buttonRow: { flexDirection: "row", alignItems: "center" },
+  buttonRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
+  },
   mainCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 28,

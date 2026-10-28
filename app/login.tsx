@@ -36,16 +36,9 @@ export default function LoginScreen() {
       // 이미 세션이 만료되었거나 처음 로그인하는 유저인 경우
       // kakaoLogout()이 에러를 던지므로, 이를 catch로 잡아 무시하고 정상 진행
     }
-    // 7초 타임아웃 프로미스 생성(시간 초과로 인한 실패만 다루기에 reject만 사용)
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(
-        () => reject(new Error("카카오 로그인 응답 시간이 초과되었습니다.")),
-        7000,
-      ),
-    );
-
-    // 타임아웃과 로그인 처리 중 먼저 완료되는 것을 실행
-    return (await Promise.race([login(), timeoutPromise])) as any;
+    // 사용자가 창을 닫거나 취소하면 SDK가 자체적으로 예외를 던진다.
+    const tokenResult = await login();
+    return tokenResult;
   };
 
   const handleKakaoLogin = async () => {
@@ -114,7 +107,9 @@ export default function LoginScreen() {
 
       if (
         error?.code === "E_CANCELLED_OPERATION" ||
-        error?.message?.includes("cancelled")
+        error?.message?.includes("cancelled") ||
+        error?.message?.includes("Cancelled") ||
+        error?.message?.includes("취소")
       ) {
         showAlert(
           "로그인 취소",
@@ -163,7 +158,7 @@ export default function LoginScreen() {
         ) : (
           <>
             <Text style={styles.kakaoIcon}>💬</Text>
-            <Text style={styles.kakaoButtonText}>카카오 3초 간편 로그인</Text>
+            <Text style={styles.kakaoButtonText}>카카오 간편 로그인</Text>
           </>
         )}
       </TouchableOpacity>

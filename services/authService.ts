@@ -27,11 +27,11 @@ export const loginWithKakao = async (
         Authorization: `Bearer ${kakaoToken}`,
       },
     },
-    { retries: 2, backoff: 1000 },
+    { retries: 2, backoff: 1000, timeout: 10000 },
   );
 
   if (!response.ok) {
-    throw new Error("카카오 로그인 실패");
+    throw new Error("카카오 로그인 처리 실패(서버 오류)");
   }
 
   const data = await response.json();
