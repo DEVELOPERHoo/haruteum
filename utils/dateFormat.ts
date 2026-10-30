@@ -23,6 +23,20 @@ export const getFormattedDate = (date: Date = new Date()): string => {
   return `${year}.${month}.${day} ${weekDay}`;
 };
 
+// 요일 포함 날짜 포맷팅 헬퍼 (예: 2026. 10. 29 (목))
+export const formatFullDateWithDay = (
+  year: number,
+  month: number,
+  day: number,
+) => {
+  const date = new Date(year, month - 1, day);
+  const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+  const dayOfWeek = dayNames[date.getDay()];
+  const formattedMonth = String(month).padStart(2, "0");
+  const formattedDay = String(day).padStart(2, "0");
+  return `${year}. ${formattedMonth}. ${formattedDay} (${dayOfWeek})`;
+};
+
 export const formatDate = (createdAt: string) => {
   const date = new Date(createdAt);
   const month = String(date.getMonth() + 1).padStart(2, "0");

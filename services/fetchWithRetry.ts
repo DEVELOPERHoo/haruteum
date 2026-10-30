@@ -12,7 +12,7 @@ export const fetchWithRetry = async (
   retryOptions: RetryOptions = {},
 ): Promise<Response> => {
   //retryOptions 객체에서 retries와 backoff 값을 추출하되, 없으면 기본값(2회, 1000ms)을 적용
-  const { retries = 2, backoff = 1000, timeout = 8000 } = retryOptions;
+  const { retries = 2, backoff = 1000, timeout = 80000 } = retryOptions;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
     const controller = new AbortController();

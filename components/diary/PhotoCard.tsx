@@ -1,5 +1,5 @@
 // components/diary/PhotoCard.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useDiaryStore } from "../../store/diaryStore";
+import { useAlertStore } from "../../store/useAlertStore";
 import { scale } from "../../utils/responsive";
 
 const { width } = Dimensions.get("window");
@@ -19,11 +20,20 @@ const CARD_WIDTH = width - 48;
 const CARD_ASPECT_RATIO = 1;
 
 export default function PhotoCard() {
+  const { showAlert } = useAlertStore();
   const { photoUris, setPhotoUris } = useDiaryStore();
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // 🌟 [핵심] 사용자가 갤러리에서 선택할 때 폰 OS가 제공하는 '진짜 원본 고유 문자열'을 매핑할 저장소
+  // 사용자가 갤러리에서 선택할 때 폰 OS가 제공하는 '진짜 원본 고유 문자열'을 매핑할 저장소
   const [photoKeys, setPhotoKeys] = useState<string[]>([]);
+
+  //작성 완료 후 새 글 쓰기로 돌아와 photoUris가 초기화되면, photoKeys도 함께 청소
+  useEffect(() => {
+    if (photoUris.length === 0 && photoKeys.length > 0) {
+      setPhotoKeys([]);
+      setActiveIndex(0);
+    }
+  }, [photoUris]);
 
   const handleScroll = (event: any) => {
     const xOffset = event.nativeEvent.contentOffset.x;
@@ -45,7 +55,7 @@ export default function PhotoCard() {
       // assetId가 없더라도, 원본 사진 데이터의 크기(fileSize), 가로(width), 세로(height)를 조합하면
       // 해상도가 같은 다른 사진은 통과하고, '동일한 사진 원본'은 완벽히 잡아내는 고유 지문이 탄생합니다.
       const incomingKeys = newAssets.map(
-        (asset) => `${asset.fileSize}-${asset.width}x${asset.height}`,
+        (asset) => `${asset.fileSize || 0}-${asset.width}x${asset.height}`,
       );
 
       // 1. 이번 세션에서 한 번에 여러 장 고를 때 자기들끼리 겹치는 내부 중복 제거
@@ -66,17 +76,17 @@ export default function PhotoCard() {
       // 중복 안내 얼럿
       if (uniqueAssets.length < newAssets.length) {
         if (uniqueAssets.length === 0) {
-          alert("이미 추가된 사진이거나 중복된 사진입니다. ☺️");
+          showAlert("이미 추가된 사진이거나 중복된 사진입니다.");
           return;
         } else {
-          alert("중복된 사진을 제외하고 추가했습니다! ✨");
+          showAlert("중복된 사진을 제외하고 추가했습니다!");
         }
       }
 
       // 2. 검증을 마친 순수 주소와 지문들만 매핑 업데이트
       const verifiedUris = uniqueAssets.map((asset) => asset.uri);
       const verifiedKeys = uniqueAssets.map(
-        (asset) => `${asset.fileSize}-${asset.width}x${asset.height}`,
+        (asset) => `${asset.fileSize || 0}-${asset.width}x${asset.height}`,
       );
 
       setPhotoKeys([...photoKeys, ...verifiedKeys]);
