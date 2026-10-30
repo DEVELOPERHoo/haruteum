@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,7 @@ import {
 import { useRouter } from "expo-router";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { useDiaryStore } from "../store/diaryStore";
+import { useCoupleStore } from "../store/useCoupleStore";
 import { fontScale, scale } from "../utils/responsive";
 
 const { width } = Dimensions.get("window");
@@ -17,6 +18,12 @@ export default function HomeScreen() {
   const router = useRouter();
 
   const { setMode } = useDiaryStore();
+
+  const { isConnected, loadConnectionState } = useCoupleStore();
+
+  useEffect(() => {
+    loadConnectionState();
+  }, []);
 
   const now = new Date();
   const year = now.getFullYear();
@@ -27,7 +34,11 @@ export default function HomeScreen() {
     setMode(selectedMode);
 
     if (selectedMode === "together") {
-      router.push("/home-menu");
+      if (isConnected) {
+        router.push("/home-menu");
+      } else {
+        router.push("/connect-partner");
+      }
     } else {
       router.push("/diary");
     }

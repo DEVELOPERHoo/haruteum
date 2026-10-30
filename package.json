@@ -15,6 +15,7 @@
     "@react-native-seoul/kakao-login": "^5.4.2",
     "@react-navigation/material-top-tabs": "^7.4.27",
     "expo": "~55.0.25",
+    "expo-clipboard": "~55.0.17",
     "expo-constants": "~55.0.16",
     "expo-dev-client": "~55.0.36",
     "expo-image-picker": "~55.0.21",
